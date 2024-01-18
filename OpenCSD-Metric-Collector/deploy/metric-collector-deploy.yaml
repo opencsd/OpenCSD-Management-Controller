@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opencsd-metric-collector
+  namespace: management-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: opencsd-metric-collector
+      namespace: management-platform
+  template:
+    metadata:
+      labels:
+        name: opencsd-metric-collector
+        namespace: management-platform
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: opencsd-metric-collector
+          image: ketidevit2/opencsd-metric-collector:v0.0.1
+          command:
+            - opencsd-metric-collector
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              value: ""
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: INFLUX_IP
+              value: "10.0.4.87"
+            - name: INFLUX_PORT
+              value: "30703"
+            - name: INFLUX_USERNAME
+              value: "keti"
+            - name: INFLUX_PASSWORD
+              value: "ketilinux"
+            - name: OPERATOR_NAME
+              value: "opencsd-metric-collector"
+      nodeSelector:
+        key: master
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          effect: NoExecute
+          tolerationSeconds: 0
+        - key: node.kubernetes.io/unreachable
+          effect: NoExecute
+          tolerationSeconds: 0
