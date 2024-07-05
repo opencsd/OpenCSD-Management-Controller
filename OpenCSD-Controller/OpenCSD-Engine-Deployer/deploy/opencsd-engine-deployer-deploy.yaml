@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opencsd-engine-deployer
+  namespace: management-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: opencsd-engine-deployer
+      namespace: management-controller
+  template:
+    metadata:
+      labels:
+        name: opencsd-engine-deployer
+        namespace: management-controller
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: opencsd-engine-deployer
+          image: ketidevit2/opencsd-engine-deployer:v0.0.1
+          imagePullPolicy: Always
+      nodeSelector:
+        key: master

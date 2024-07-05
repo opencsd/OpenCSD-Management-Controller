@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: management-metric-initdb-config
+  namespace: management-controller
+data:
+  initdb.sh: |
+    #!/bin/sh
+    influx -execute "CREATE DATABASE opencsd_management_platform"
+---    
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: management-metric-db-pv
+  namespace: management-controller
+  labels:
+    app: management-metric-db
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  storageClassName: influx-db
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/mnt/influx"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: management-metric-db-pvc
+  namespace: management-controller
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: influx-db
+  selector:
+    matchLabels:
+      app: management-metric-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: management-metric-db-svc
+  namespace: management-controller
+spec:
+  type: NodePort
+  ports:
+    - port: 40703
+      targetPort: 8086
+      nodePort: 30703
+  selector:
+    name: management-metric-db
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: management-metric-db
+  namespace: management-controller
+spec:
+  replicas: 1
+  serviceName: management-metric-db-svc
+  selector:
+    matchLabels:
+      name: management-metric-db 
+  template:
+    metadata:
+      labels:
+        name: management-metric-db
+    spec:
+      nodeSelector:
+        key: master
+      containers:
+        - env:
+            - name: INFLUXDB
+              value: storage-metric
+            - name: INFLUXDB_PASSWORD
+              value: ketilinux
+            - name: INFLUXDB_USER
+              value: keti
+          image: influxdb:1.7
+          name: influxdb
+          ports:
+            - containerPort: 8086
+          resources: {}
+          volumeMounts:
+            - name: management-metric-db
+              mountPath: /var/lib/influx
+            - name: management-metric-db-entrypoint
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: management-metric-db
+          persistentVolumeClaim:
+            claimName: management-metric-db-pvc
+        - name: management-metric-db-entrypoint
+          configMap:
+            name: management-metric-initdb-config
+            defaultMode: 0755

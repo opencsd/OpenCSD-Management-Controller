@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: opencsd-volume-allocator
+  namespace: management-controller
+  labels:
+    name: opencsd-volume-allocator
+    namespace: management-controller
+spec:
+  type: NodePort
+  ports:
+    - port: 40806
+      targetPort: 40806
+      nodePort: 30806
+      protocol: TCP
+  selector:
+    name: opencsd-volume-allocator
+    namespace: management-controller
