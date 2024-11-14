@@ -15,11 +15,46 @@ spec:
         name: opencsd-api-server
         namespace: management-controller
     spec:
+      serviceAccountName: opencsd-api-server
       imagePullSecrets:
         - name: regcred
       containers:
         - name: opencsd-api-server
-          image: ketidevit2/opencsd-api-server:v0.0.1
+          image: ketidevit2/opencsd-api-server:v1.0
           imagePullPolicy: Always
+          env:
+            - name: OPENCSD_API_SERVER_PORT
+              value: "40800"
+            - name: OPENCSD_ENGINE_DEPLOYER_PORT
+              value: "40804"
+            - name: OPENCSD_INSTANCE_MANAGER_PORT
+              value: "40805"
+            - name: OPENCSD_VOLUME_ALLOCATOR_PORT
+              value: "40806"
+            - name: STORAGE_API_SERVER_PORT
+              value: "40306"
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
       nodeSelector:
         key: master
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: opencsd-api-server
+  namespace: management-controller
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: opencsd-api-server-crb
+subjects:
+- kind: ServiceAccount
+  name: opencsd-api-server
+  namespace: management-controller
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io

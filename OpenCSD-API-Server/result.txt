@@ -1,0 +1,1411 @@
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# curl "http://10.0.4.87:30800/dashboard/cluster/storage-node-list"
+{"cluster_name":"OPENCSD","storage_node_list":{"storage-node1":{"node_name":"storage-node1","node_ip":"10.0.4.83","status":"READY","layer":"STORAGE"},"storage-node2":{"node_name":"storage-node2","node_ip":"10.0.4.84","status":"READY","layer":"STORAGE"},"storage-node3":{"node_name":"storage-node3","node_ip":"10.0.4.85","status":"READY","layer":"STORAGE"},"storage-node4":{"node_name":"storage-node4","node_ip":"10.0.4.82","status":"READY","layer":"STORAGE"}}}
+{
+  "cluster_name": "OPENCSD",
+  "storage_node_list": {
+    "storage-node1": {
+      "node_name": "storage-node1",
+      "node_ip": "10.0.4.83",
+      "status": "READY",
+      "layer": "STORAGE"
+    },
+    "storage-node2": {
+      "node_name": "storage-node2",
+      "node_ip": "10.0.4.84",
+      "status": "READY",
+      "layer": "STORAGE"
+    },
+    "storage-node3": {
+      "node_name": "storage-node3",
+      "node_ip": "10.0.4.85",
+      "status": "READY",
+      "layer": "STORAGE"
+    },
+    "storage-node4": {
+      "node_name": "storage-node4",
+      "node_ip": "10.0.4.82",
+      "status": "READY",
+      "layer": "STORAGE"
+    }
+  }
+}
+
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# curl "http://10.0.4.87:30800/dashboard/node/info/storage-list"
+{"storage-node1":{"node_name":"storage-node1","csd_list":[{"csd_id":"csd5","status":"READY"},{"csd_id":"csd2","status":"READY"},{"csd_id":"csd8","status":"READY"},{"csd_id":"csd1","status":"READY"},{"csd_id":"csd4","status":"READY"},{"csd_id":"csd3","status":"READY"},{"csd_id":"csd6","status":"READY"},{"csd_id":"csd7","status":"READY"}],"ssd_list":null,"node_type":"CSD"},"storage-node2":{"node_name":"storage-node2","csd_list":[{"csd_id":"csd6","status":"NOTREADY"},{"csd_id":"csd8","status":"NOTREADY"},{"csd_id":"csd3","status":"NOTREADY"},{"csd_id":"csd2","status":"NOTREADY"},{"csd_id":"csd4","status":"NOTREADY"},{"csd_id":"csd5","status":"NOTREADY"},{"csd_id":"csd7","status":"NOTREADY"},{"csd_id":"csd1","status":"NOTREADY"}],"ssd_list":null,"node_type":"CSD"},"storage-node3":{"node_name":"storage-node3","csd_list":[{"csd_id":"csd1","status":"BROKEN"},{"csd_id":"csd2","status":"BROKEN"},{"csd_id":"csd3","status":"BROKEN"},{"csd_id":"csd4","status":"BROKEN"},{"csd_id":"csd5","status":"BROKEN"},{"csd_id":"csd6","status":"BROKEN"}],"ssd_list":null,"node_type":"CSD"},"storage-node4":{"node_name":"storage-node4","csd_list":null,"ssd_list":["ssd8","ssd1","ssd2","ssd3","ssd4","ssd5","ssd6","ssd7"],"node_type":"SSD"}}
+{
+  "storage-node1": {
+    "node_name": "storage-node1",
+    "csd_list": [
+      {
+        "csd_id": "csd5",
+        "status": "READY"
+      },
+      {
+        "csd_id": "csd2",
+        "status": "READY"
+      },
+      {
+        "csd_id": "csd8",
+        "status": "READY"
+      },
+      {
+        "csd_id": "csd1",
+        "status": "READY"
+      },
+      {
+        "csd_id": "csd4",
+        "status": "READY"
+      },
+      {
+        "csd_id": "csd3",
+        "status": "READY"
+      },
+      {
+        "csd_id": "csd6",
+        "status": "READY"
+      },
+      {
+        "csd_id": "csd7",
+        "status": "READY"
+      }
+    ],
+    "ssd_list": null,
+    "node_type": "CSD"
+  },
+  "storage-node2": {
+    "node_name": "storage-node2",
+    "csd_list": [
+      {
+        "csd_id": "csd6",
+        "status": "NOTREADY"
+      },
+      {
+        "csd_id": "csd8",
+        "status": "NOTREADY"
+      },
+      {
+        "csd_id": "csd3",
+        "status": "NOTREADY"
+      },
+      {
+        "csd_id": "csd2",
+        "status": "NOTREADY"
+      },
+      {
+        "csd_id": "csd4",
+        "status": "NOTREADY"
+      },
+      {
+        "csd_id": "csd5",
+        "status": "NOTREADY"
+      },
+      {
+        "csd_id": "csd7",
+        "status": "NOTREADY"
+      },
+      {
+        "csd_id": "csd1",
+        "status": "NOTREADY"
+      }
+    ],
+    "ssd_list": null,
+    "node_type": "CSD"
+  },
+  "storage-node3": {
+    "node_name": "storage-node3",
+    "csd_list": [
+      {
+        "csd_id": "csd1",
+        "status": "BROKEN"
+      },
+      {
+        "csd_id": "csd2",
+        "status": "BROKEN"
+      },
+      {
+        "csd_id": "csd3",
+        "status": "BROKEN"
+      },
+      {
+        "csd_id": "csd4",
+        "status": "BROKEN"
+      },
+      {
+        "csd_id": "csd5",
+        "status": "BROKEN"
+      },
+      {
+        "csd_id": "csd6",
+        "status": "BROKEN"
+      }
+    ],
+    "ssd_list": null,
+    "node_type": "CSD"
+  },
+  "storage-node4": {
+    "node_name": "storage-node4",
+    "csd_list": null,
+    "ssd_list": [
+      "ssd8",
+      "ssd1",
+      "ssd2",
+      "ssd3",
+      "ssd4",
+      "ssd5",
+      "ssd6",
+      "ssd7"
+    ],
+    "node_type": "SSD"
+  }
+}
+
+
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# curl "http://10.0.4.87:30800/dashboard/node/info/storage"
+{"storage-node1":{"ssd_list":{},"csd_list":{"csd1":[{"timestamp":"2024-11-14T10:50:59+09:00","id":"csd1","name":"nvme1","ip":"10.1.1.2","diskTotal":208562268,"diskUsed":19324512,"diskUtilization":9.27,"csdMetricScore":0,"status":"READY"}],"csd2":[{"timestamp":"2024-11-14T10:50:59+09:00","id":"csd2","name":"nvme2","ip":"10.1.2.2","diskTotal":208562268,"diskUsed":37446368,"diskUtilization":17.95,"csdMetricScore":0,"status":"READY"}],"csd3":[{"timestamp":"2024-11-14T10:50:59+09:00","id":"csd3","name":"nvme3","ip":"10.1.3.2","diskTotal":208562268,"diskUsed":35090320,"diskUtilization":16.82,"csdMetricScore":0,"status":"READY"}],"csd4":[{"timestamp":"2024-11-14T10:50:59+09:00","id":"csd4","name":"nvme4","ip":"10.1.4.2","diskTotal":208562268,"diskUsed":35013880,"diskUtilization":16.79,"csdMetricScore":0,"status":"READY"}],"csd5":[{"timestamp":"2024-11-14T10:50:59+09:00","id":"csd5","name":"nvme5","ip":"10.1.5.2","diskTotal":208562268,"diskUsed":34817120,"diskUtilization":16.69,"csdMetricScore":0,"status":"READY"}],"csd6":[{"timestamp":"2024-11-14T10:50:59+09:00","id":"csd6","name":"nvme6","ip":"10.1.6.2","diskTotal":208562268,"diskUsed":34817256,"diskUtilization":16.69,"csdMetricScore":0,"status":"READY"}],"csd7":[{"timestamp":"2024-11-14T10:50:59+09:00","id":"csd7","name":"nvme7","ip":"10.1.7.2","diskTotal":208562268,"diskUsed":35013968,"diskUtilization":16.79,"csdMetricScore":0,"status":"READY"}],"csd8":[{"timestamp":"2024-11-14T10:50:59+09:00","id":"csd8","name":"nvme8","ip":"10.1.8.2","diskTotal":208562268,"diskUsed":35013584,"diskUtilization":16.79,"csdMetricScore":0,"status":"READY"}]}},"storage-node2":{"ssd_list":{},"csd_list":{}},"storage-node3":{"ssd_list":{},"csd_list":{}},"storage-node4":{"ssd_list":{"ssd1":[{"timestamp":"2024-11-14T10:51:00+09:00","id":"ssd1","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd2":[{"timestamp":"2024-11-14T10:51:00+09:00","id":"ssd2","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd3":[{"timestamp":"2024-11-14T10:51:00+09:00","id":"ssd3","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd4":[{"timestamp":"2024-11-14T10:51:00+09:00","id":"ssd4","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd5":[{"timestamp":"2024-11-14T10:51:00+09:00","id":"ssd5","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd6":[{"timestamp":"2024-11-14T10:51:00+09:00","id":"ssd6","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd7":[{"timestamp":"2024-11-14T10:51:00+09:00","id":"ssd7","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd8":[{"timestamp":"2024-11-14T10:51:00+09:00","id":"ssd8","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}]},"csd_list":{}}}
+{
+  "storage-node1": {
+    "ssd_list": {},
+    "csd_list": {
+      "csd1": [
+        {
+          "timestamp": "2024-11-14T10:50:59+09:00",
+          "id": "csd1",
+          "name": "nvme1",
+          "ip": "10.1.1.2",
+          "diskTotal": 208562268,
+          "diskUsed": 19324512,
+          "diskUtilization": 9.27,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd2": [
+        {
+          "timestamp": "2024-11-14T10:50:59+09:00",
+          "id": "csd2",
+          "name": "nvme2",
+          "ip": "10.1.2.2",
+          "diskTotal": 208562268,
+          "diskUsed": 37446368,
+          "diskUtilization": 17.95,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd3": [
+        {
+          "timestamp": "2024-11-14T10:50:59+09:00",
+          "id": "csd3",
+          "name": "nvme3",
+          "ip": "10.1.3.2",
+          "diskTotal": 208562268,
+          "diskUsed": 35090320,
+          "diskUtilization": 16.82,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd4": [
+        {
+          "timestamp": "2024-11-14T10:50:59+09:00",
+          "id": "csd4",
+          "name": "nvme4",
+          "ip": "10.1.4.2",
+          "diskTotal": 208562268,
+          "diskUsed": 35013880,
+          "diskUtilization": 16.79,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd5": [
+        {
+          "timestamp": "2024-11-14T10:50:59+09:00",
+          "id": "csd5",
+          "name": "nvme5",
+          "ip": "10.1.5.2",
+          "diskTotal": 208562268,
+          "diskUsed": 34817120,
+          "diskUtilization": 16.69,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd6": [
+        {
+          "timestamp": "2024-11-14T10:50:59+09:00",
+          "id": "csd6",
+          "name": "nvme6",
+          "ip": "10.1.6.2",
+          "diskTotal": 208562268,
+          "diskUsed": 34817256,
+          "diskUtilization": 16.69,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd7": [
+        {
+          "timestamp": "2024-11-14T10:50:59+09:00",
+          "id": "csd7",
+          "name": "nvme7",
+          "ip": "10.1.7.2",
+          "diskTotal": 208562268,
+          "diskUsed": 35013968,
+          "diskUtilization": 16.79,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd8": [
+        {
+          "timestamp": "2024-11-14T10:50:59+09:00",
+          "id": "csd8",
+          "name": "nvme8",
+          "ip": "10.1.8.2",
+          "diskTotal": 208562268,
+          "diskUsed": 35013584,
+          "diskUtilization": 16.79,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ]
+    }
+  },
+  "storage-node2": {
+    "ssd_list": {},
+    "csd_list": {}
+  },
+  "storage-node3": {
+    "ssd_list": {},
+    "csd_list": {}
+  },
+  "storage-node4": {
+    "ssd_list": {
+      "ssd1": [
+        {
+          "timestamp": "2024-11-14T10:51:00+09:00",
+          "id": "ssd1",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd2": [
+        {
+          "timestamp": "2024-11-14T10:51:00+09:00",
+          "id": "ssd2",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd3": [
+        {
+          "timestamp": "2024-11-14T10:51:00+09:00",
+          "id": "ssd3",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd4": [
+        {
+          "timestamp": "2024-11-14T10:51:00+09:00",
+          "id": "ssd4",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd5": [
+        {
+          "timestamp": "2024-11-14T10:51:00+09:00",
+          "id": "ssd5",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd6": [
+        {
+          "timestamp": "2024-11-14T10:51:00+09:00",
+          "id": "ssd6",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd7": [
+        {
+          "timestamp": "2024-11-14T10:51:00+09:00",
+          "id": "ssd7",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd8": [
+        {
+          "timestamp": "2024-11-14T10:51:00+09:00",
+          "id": "ssd8",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ]
+    },
+    "csd_list": {}
+  }
+}
+
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# curl "http://10.0.4.87:30800/dashboard/node/metric/disk"
+{"storage-node1":[{"timestamp":"2024-11-14T10:51:09+09:00","name":"storage-node1","diskTotal":2238007480,"diskUsed":1385189732,"diskUtilization":61.89}],"storage-node2":[{"timestamp":"2024-11-14T10:51:10+09:00","name":"storage-node2","diskTotal":2314977256,"diskUsed":87236036,"diskUtilization":3.77}],"storage-node3":[{"timestamp":"2024-11-14T10:51:08+09:00","name":"storage-node3","diskTotal":3336235596,"diskUsed":144875444,"diskUtilization":4.34}],"storage-node4":[{"timestamp":"2024-11-14T10:51:09+09:00","name":"storage-node4","diskTotal":2493252848,"diskUsed":235310636,"diskUtilization":9.44}]}
+{
+  "storage-node1": [
+    {
+      "timestamp": "2024-11-14T10:51:09+09:00",
+      "name": "storage-node1",
+      "diskTotal": 2238007480,
+      "diskUsed": 1385189732,
+      "diskUtilization": 61.89
+    }
+  ],
+  "storage-node2": [
+    {
+      "timestamp": "2024-11-14T10:51:10+09:00",
+      "name": "storage-node2",
+      "diskTotal": 2314977256,
+      "diskUsed": 87236036,
+      "diskUtilization": 3.77
+    }
+  ],
+  "storage-node3": [
+    {
+      "timestamp": "2024-11-14T10:51:08+09:00",
+      "name": "storage-node3",
+      "diskTotal": 3336235596,
+      "diskUsed": 144875444,
+      "diskUtilization": 4.34
+    }
+  ],
+  "storage-node4": [
+    {
+      "timestamp": "2024-11-14T10:51:09+09:00",
+      "name": "storage-node4",
+      "diskTotal": 2493252848,
+      "diskUsed": 235310636,
+      "diskUtilization": 9.44
+    }
+  ]
+}
+
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# curl "http://10.0.4.87:30800/dashboard/node/metric/all"
+{"storage-node1":[{"timestamp":"2024-11-14T10:51:14+09:00","name":"storage-node1","cpuTotal":12,"cpuUsed":0.24,"cpuUtilization":1.96,"memoryTotal":197734516,"memoryUsed":9522116,"memoryUtilization":4.82,"diskTotal":2238007480,"diskUsed":1385189756,"diskUtilization":61.89,"networkRxData":26050,"networkTxData":3575,"networkBandwidth":47400,"powerUsed":237}],"storage-node2":[{"timestamp":"2024-11-14T10:51:15+09:00","name":"storage-node2","cpuTotal":12,"cpuUsed":0.07,"cpuUtilization":0.6,"memoryTotal":197734180,"memoryUsed":3155428,"memoryUtilization":1.6,"diskTotal":2314977256,"diskUsed":87236036,"diskUtilization":3.77,"networkRxData":23945,"networkTxData":1279,"networkBandwidth":40352,"powerUsed":216}],"storage-node3":[{"timestamp":"2024-11-14T10:51:18+09:00","name":"storage-node3","cpuTotal":32,"cpuUsed":2.1,"cpuUtilization":6.58,"memoryTotal":131509392,"memoryUsed":2590164,"memoryUtilization":1.97,"diskTotal":3336235596,"diskUsed":144875508,"diskUtilization":4.34,"networkRxData":36801,"networkTxData":1953,"networkBandwidth":62000,"powerUsed":0}],"storage-node4":[{"timestamp":"2024-11-14T10:51:14+09:00","name":"storage-node4","cpuTotal":12,"cpuUsed":0.95,"cpuUtilization":7.94,"memoryTotal":263796156,"memoryUsed":7597388,"memoryUtilization":2.88,"diskTotal":2493252848,"diskUsed":235310684,"diskUtilization":9.44,"networkRxData":17889,"networkTxData":2030,"networkBandwidth":31864,"powerUsed":206}]}
+{
+  "storage-node1": [
+    {
+      "timestamp": "2024-11-14T10:51:14+09:00",
+      "name": "storage-node1",
+      "cpuTotal": 12,
+      "cpuUsed": 0.24,
+      "cpuUtilization": 1.96,
+      "memoryTotal": 197734516,
+      "memoryUsed": 9522116,
+      "memoryUtilization": 4.82,
+      "diskTotal": 2238007480,
+      "diskUsed": 1385189756,
+      "diskUtilization": 61.89,
+      "networkRxData": 26050,
+      "networkTxData": 3575,
+      "networkBandwidth": 47400,
+      "powerUsed": 237
+    }
+  ],
+  "storage-node2": [
+    {
+      "timestamp": "2024-11-14T10:51:15+09:00",
+      "name": "storage-node2",
+      "cpuTotal": 12,
+      "cpuUsed": 0.07,
+      "cpuUtilization": 0.6,
+      "memoryTotal": 197734180,
+      "memoryUsed": 3155428,
+      "memoryUtilization": 1.6,
+      "diskTotal": 2314977256,
+      "diskUsed": 87236036,
+      "diskUtilization": 3.77,
+      "networkRxData": 23945,
+      "networkTxData": 1279,
+      "networkBandwidth": 40352,
+      "powerUsed": 216
+    }
+  ],
+  "storage-node3": [
+    {
+      "timestamp": "2024-11-14T10:51:18+09:00",
+      "name": "storage-node3",
+      "cpuTotal": 32,
+      "cpuUsed": 2.1,
+      "cpuUtilization": 6.58,
+      "memoryTotal": 131509392,
+      "memoryUsed": 2590164,
+      "memoryUtilization": 1.97,
+      "diskTotal": 3336235596,
+      "diskUsed": 144875508,
+      "diskUtilization": 4.34,
+      "networkRxData": 36801,
+      "networkTxData": 1953,
+      "networkBandwidth": 62000,
+      "powerUsed": 0
+    }
+  ],
+  "storage-node4": [
+    {
+      "timestamp": "2024-11-14T10:51:14+09:00",
+      "name": "storage-node4",
+      "cpuTotal": 12,
+      "cpuUsed": 0.95,
+      "cpuUtilization": 7.94,
+      "memoryTotal": 263796156,
+      "memoryUsed": 7597388,
+      "memoryUtilization": 2.88,
+      "diskTotal": 2493252848,
+      "diskUsed": 235310684,
+      "diskUtilization": 9.44,
+      "networkRxData": 17889,
+      "networkTxData": 2030,
+      "networkBandwidth": 31864,
+      "powerUsed": 206
+    }
+  ]
+}
+
+
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# curl "http://10.0.4.87:30800/dashboard/storage/info"
+{"storage-node1":{"ssd_list":{},"csd_list":{"csd1":[{"timestamp":"2024-11-14T10:51:34+09:00","id":"csd1","name":"nvme1","ip":"10.1.1.2","diskTotal":208562268,"diskUsed":19324512,"diskUtilization":9.27,"csdMetricScore":0,"status":"READY"}],"csd2":[{"timestamp":"2024-11-14T10:51:34+09:00","id":"csd2","name":"nvme2","ip":"10.1.2.2","diskTotal":208562268,"diskUsed":37446368,"diskUtilization":17.95,"csdMetricScore":0,"status":"READY"}],"csd3":[{"timestamp":"2024-11-14T10:51:34+09:00","id":"csd3","name":"nvme3","ip":"10.1.3.2","diskTotal":208562268,"diskUsed":35090320,"diskUtilization":16.82,"csdMetricScore":0,"status":"READY"}],"csd4":[{"timestamp":"2024-11-14T10:51:34+09:00","id":"csd4","name":"nvme4","ip":"10.1.4.2","diskTotal":208562268,"diskUsed":35013880,"diskUtilization":16.79,"csdMetricScore":0,"status":"READY"}],"csd5":[{"timestamp":"2024-11-14T10:51:34+09:00","id":"csd5","name":"nvme5","ip":"10.1.5.2","diskTotal":208562268,"diskUsed":34817120,"diskUtilization":16.69,"csdMetricScore":0,"status":"READY"}],"csd6":[{"timestamp":"2024-11-14T10:51:34+09:00","id":"csd6","name":"nvme6","ip":"10.1.6.2","diskTotal":208562268,"diskUsed":34817256,"diskUtilization":16.69,"csdMetricScore":0,"status":"READY"}],"csd7":[{"timestamp":"2024-11-14T10:51:34+09:00","id":"csd7","name":"nvme7","ip":"10.1.7.2","diskTotal":208562268,"diskUsed":35013968,"diskUtilization":16.79,"csdMetricScore":0,"status":"READY"}],"csd8":[{"timestamp":"2024-11-14T10:51:34+09:00","id":"csd8","name":"nvme8","ip":"10.1.8.2","diskTotal":208562268,"diskUsed":35013584,"diskUtilization":16.79,"csdMetricScore":0,"status":"READY"}]}},"storage-node2":{"ssd_list":{},"csd_list":{}},"storage-node3":{"ssd_list":{},"csd_list":{}},"storage-node4":{"ssd_list":{"ssd1":[{"timestamp":"2024-11-14T10:51:35+09:00","id":"ssd1","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd2":[{"timestamp":"2024-11-14T10:51:35+09:00","id":"ssd2","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd3":[{"timestamp":"2024-11-14T10:51:35+09:00","id":"ssd3","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd4":[{"timestamp":"2024-11-14T10:51:35+09:00","id":"ssd4","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd5":[{"timestamp":"2024-11-14T10:51:35+09:00","id":"ssd5","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd6":[{"timestamp":"2024-11-14T10:51:35+09:00","id":"ssd6","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd7":[{"timestamp":"2024-11-14T10:51:35+09:00","id":"ssd7","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd8":[{"timestamp":"2024-11-14T10:51:35+09:00","id":"ssd8","name":"NORMAL","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}]},"csd_list":{}}}
+{
+  "storage-node1": {
+    "ssd_list": {},
+    "csd_list": {
+      "csd1": [
+        {
+          "timestamp": "2024-11-14T10:51:34+09:00",
+          "id": "csd1",
+          "name": "nvme1",
+          "ip": "10.1.1.2",
+          "diskTotal": 208562268,
+          "diskUsed": 19324512,
+          "diskUtilization": 9.27,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd2": [
+        {
+          "timestamp": "2024-11-14T10:51:34+09:00",
+          "id": "csd2",
+          "name": "nvme2",
+          "ip": "10.1.2.2",
+          "diskTotal": 208562268,
+          "diskUsed": 37446368,
+          "diskUtilization": 17.95,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd3": [
+        {
+          "timestamp": "2024-11-14T10:51:34+09:00",
+          "id": "csd3",
+          "name": "nvme3",
+          "ip": "10.1.3.2",
+          "diskTotal": 208562268,
+          "diskUsed": 35090320,
+          "diskUtilization": 16.82,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd4": [
+        {
+          "timestamp": "2024-11-14T10:51:34+09:00",
+          "id": "csd4",
+          "name": "nvme4",
+          "ip": "10.1.4.2",
+          "diskTotal": 208562268,
+          "diskUsed": 35013880,
+          "diskUtilization": 16.79,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd5": [
+        {
+          "timestamp": "2024-11-14T10:51:34+09:00",
+          "id": "csd5",
+          "name": "nvme5",
+          "ip": "10.1.5.2",
+          "diskTotal": 208562268,
+          "diskUsed": 34817120,
+          "diskUtilization": 16.69,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd6": [
+        {
+          "timestamp": "2024-11-14T10:51:34+09:00",
+          "id": "csd6",
+          "name": "nvme6",
+          "ip": "10.1.6.2",
+          "diskTotal": 208562268,
+          "diskUsed": 34817256,
+          "diskUtilization": 16.69,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd7": [
+        {
+          "timestamp": "2024-11-14T10:51:34+09:00",
+          "id": "csd7",
+          "name": "nvme7",
+          "ip": "10.1.7.2",
+          "diskTotal": 208562268,
+          "diskUsed": 35013968,
+          "diskUtilization": 16.79,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ],
+      "csd8": [
+        {
+          "timestamp": "2024-11-14T10:51:34+09:00",
+          "id": "csd8",
+          "name": "nvme8",
+          "ip": "10.1.8.2",
+          "diskTotal": 208562268,
+          "diskUsed": 35013584,
+          "diskUtilization": 16.79,
+          "csdMetricScore": 0,
+          "status": "READY"
+        }
+      ]
+    }
+  },
+  "storage-node2": {
+    "ssd_list": {},
+    "csd_list": {}
+  },
+  "storage-node3": {
+    "ssd_list": {},
+    "csd_list": {}
+  },
+  "storage-node4": {
+    "ssd_list": {
+      "ssd1": [
+        {
+          "timestamp": "2024-11-14T10:51:35+09:00",
+          "id": "ssd1",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd2": [
+        {
+          "timestamp": "2024-11-14T10:51:35+09:00",
+          "id": "ssd2",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd3": [
+        {
+          "timestamp": "2024-11-14T10:51:35+09:00",
+          "id": "ssd3",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd4": [
+        {
+          "timestamp": "2024-11-14T10:51:35+09:00",
+          "id": "ssd4",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd5": [
+        {
+          "timestamp": "2024-11-14T10:51:35+09:00",
+          "id": "ssd5",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd6": [
+        {
+          "timestamp": "2024-11-14T10:51:35+09:00",
+          "id": "ssd6",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd7": [
+        {
+          "timestamp": "2024-11-14T10:51:35+09:00",
+          "id": "ssd7",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd8": [
+        {
+          "timestamp": "2024-11-14T10:51:35+09:00",
+          "id": "ssd8",
+          "name": "NORMAL",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ]
+    },
+    "csd_list": {}
+  }
+}
+
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# curl "http://10.0.4.87:30800/dashboard/storage/metric/all"
+{"storage-node1":{"ssd_list":{},"csd_list":{"csd1":[{"timestamp":"2024-11-14T10:51:49+09:00","id":"csd1","name":"nvme1","ip":"10.1.1.2","cpuTotal":4,"cpuUsed":0.12,"cpuUtilization":3.09,"memoryTotal":6111708,"memoryUsed":906056,"memoryUtilization":14.82,"diskTotal":208562268,"diskUsed":19324512,"diskUtilization":9.27,"networkRxData":206,"networkTxData":703,"networkBandwidth":1448,"csdMetricScore":89.87,"csdWorkingBlockCount":0,"status":"READY"}],"csd2":[{"timestamp":"2024-11-14T10:51:49+09:00","id":"csd2","name":"nvme2","ip":"10.1.2.2","cpuTotal":4,"cpuUsed":0.08,"cpuUtilization":1.95,"memoryTotal":6111708,"memoryUsed":906904,"memoryUtilization":14.84,"diskTotal":208562268,"diskUsed":37446368,"diskUtilization":17.95,"networkRxData":206,"networkTxData":704,"networkBandwidth":1456,"csdMetricScore":90.32,"csdWorkingBlockCount":0,"status":"READY"}],"csd3":[{"timestamp":"2024-11-14T10:51:49+09:00","id":"csd3","name":"nvme3","ip":"10.1.3.2","cpuTotal":4,"cpuUsed":0.09,"cpuUtilization":2.15,"memoryTotal":6111708,"memoryUsed":894668,"memoryUtilization":14.64,"diskTotal":208562268,"diskUsed":35090320,"diskUtilization":16.82,"networkRxData":206,"networkTxData":703,"networkBandwidth":1448,"csdMetricScore":90.36,"csdWorkingBlockCount":0,"status":"READY"}],"csd4":[{"timestamp":"2024-11-14T10:51:49+09:00","id":"csd4","name":"nvme4","ip":"10.1.4.2","cpuTotal":4,"cpuUsed":0.08,"cpuUtilization":1.95,"memoryTotal":6111708,"memoryUsed":887820,"memoryUtilization":14.53,"diskTotal":208562268,"diskUsed":35013880,"diskUtilization":16.79,"networkRxData":206,"networkTxData":706,"networkBandwidth":1456,"csdMetricScore":90.5,"csdWorkingBlockCount":0,"status":"READY"}],"csd5":[{"timestamp":"2024-11-14T10:51:49+09:00","id":"csd5","name":"nvme5","ip":"10.1.5.2","cpuTotal":4,"cpuUsed":0.22,"cpuUtilization":5.45,"memoryTotal":6111708,"memoryUsed":895032,"memoryUtilization":14.64,"diskTotal":208562268,"diskUsed":34817120,"diskUtilization":16.69,"networkRxData":206,"networkTxData":706,"networkBandwidth":1456,"csdMetricScore":89.04,"csdWorkingBlockCount":0,"status":"READY"}],"csd6":[{"timestamp":"2024-11-14T10:51:49+09:00","id":"csd6","name":"nvme6","ip":"10.1.6.2","cpuTotal":4,"cpuUsed":0.11,"cpuUtilization":2.7,"memoryTotal":6111708,"memoryUsed":898784,"memoryUtilization":14.71,"diskTotal":208562268,"diskUsed":34817256,"diskUtilization":16.69,"networkRxData":206,"networkTxData":705,"networkBandwidth":1456,"csdMetricScore":90.09,"csdWorkingBlockCount":0,"status":"READY"}],"csd7":[{"timestamp":"2024-11-14T10:51:49+09:00","id":"csd7","name":"nvme7","ip":"10.1.7.2","cpuTotal":4,"cpuUsed":0.08,"cpuUtilization":2.1,"memoryTotal":6111708,"memoryUsed":896460,"memoryUtilization":14.67,"diskTotal":208562268,"diskUsed":35013968,"diskUtilization":16.79,"networkRxData":206,"networkTxData":705,"networkBandwidth":1456,"csdMetricScore":90.36,"csdWorkingBlockCount":0,"status":"READY"}],"csd8":[{"timestamp":"2024-11-14T10:51:49+09:00","id":"csd8","name":"nvme8","ip":"10.1.8.2","cpuTotal":4,"cpuUsed":0.08,"cpuUtilization":2,"memoryTotal":6111708,"memoryUsed":894488,"memoryUtilization":14.64,"diskTotal":208562268,"diskUsed":35013584,"diskUtilization":16.79,"networkRxData":206,"networkTxData":705,"networkBandwidth":1456,"csdMetricScore":90.42,"csdWorkingBlockCount":0,"status":"READY"}]}},"storage-node2":{"ssd_list":{},"csd_list":{}},"storage-node3":{"ssd_list":{},"csd_list":{}},"storage-node4":{"ssd_list":{"ssd1":[{"timestamp":"2024-11-14T10:51:50+09:00","id":"ssd1","name":"sda","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd2":[{"timestamp":"2024-11-14T10:51:50+09:00","id":"ssd2","name":"sdb","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd3":[{"timestamp":"2024-11-14T10:51:50+09:00","id":"ssd3","name":"sdc","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd4":[{"timestamp":"2024-11-14T10:51:50+09:00","id":"ssd4","name":"sdd","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd5":[{"timestamp":"2024-11-14T10:51:50+09:00","id":"ssd5","name":"sde","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd6":[{"timestamp":"2024-11-14T10:51:50+09:00","id":"ssd6","name":"sdf","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd7":[{"timestamp":"2024-11-14T10:51:50+09:00","id":"ssd7","name":"sdg","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd8":[{"timestamp":"2024-11-14T10:51:50+09:00","id":"ssd8","name":"sdh","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}]},"csd_list":{}}}
+{
+  "storage-node1": {
+    "ssd_list": {},
+    "csd_list": {
+      "csd1": [
+        {
+          "timestamp": "2024-11-14T10:51:49+09:00",
+          "id": "csd1",
+          "name": "nvme1",
+          "ip": "10.1.1.2",
+          "cpuTotal": 4,
+          "cpuUsed": 0.12,
+          "cpuUtilization": 3.09,
+          "memoryTotal": 6111708,
+          "memoryUsed": 906056,
+          "memoryUtilization": 14.82,
+          "diskTotal": 208562268,
+          "diskUsed": 19324512,
+          "diskUtilization": 9.27,
+          "networkRxData": 206,
+          "networkTxData": 703,
+          "networkBandwidth": 1448,
+          "csdMetricScore": 89.87,
+          "csdWorkingBlockCount": 0,
+          "status": "READY"
+        }
+      ],
+      "csd2": [
+        {
+          "timestamp": "2024-11-14T10:51:49+09:00",
+          "id": "csd2",
+          "name": "nvme2",
+          "ip": "10.1.2.2",
+          "cpuTotal": 4,
+          "cpuUsed": 0.08,
+          "cpuUtilization": 1.95,
+          "memoryTotal": 6111708,
+          "memoryUsed": 906904,
+          "memoryUtilization": 14.84,
+          "diskTotal": 208562268,
+          "diskUsed": 37446368,
+          "diskUtilization": 17.95,
+          "networkRxData": 206,
+          "networkTxData": 704,
+          "networkBandwidth": 1456,
+          "csdMetricScore": 90.32,
+          "csdWorkingBlockCount": 0,
+          "status": "READY"
+        }
+      ],
+      "csd3": [
+        {
+          "timestamp": "2024-11-14T10:51:49+09:00",
+          "id": "csd3",
+          "name": "nvme3",
+          "ip": "10.1.3.2",
+          "cpuTotal": 4,
+          "cpuUsed": 0.09,
+          "cpuUtilization": 2.15,
+          "memoryTotal": 6111708,
+          "memoryUsed": 894668,
+          "memoryUtilization": 14.64,
+          "diskTotal": 208562268,
+          "diskUsed": 35090320,
+          "diskUtilization": 16.82,
+          "networkRxData": 206,
+          "networkTxData": 703,
+          "networkBandwidth": 1448,
+          "csdMetricScore": 90.36,
+          "csdWorkingBlockCount": 0,
+          "status": "READY"
+        }
+      ],
+      "csd4": [
+        {
+          "timestamp": "2024-11-14T10:51:49+09:00",
+          "id": "csd4",
+          "name": "nvme4",
+          "ip": "10.1.4.2",
+          "cpuTotal": 4,
+          "cpuUsed": 0.08,
+          "cpuUtilization": 1.95,
+          "memoryTotal": 6111708,
+          "memoryUsed": 887820,
+          "memoryUtilization": 14.53,
+          "diskTotal": 208562268,
+          "diskUsed": 35013880,
+          "diskUtilization": 16.79,
+          "networkRxData": 206,
+          "networkTxData": 706,
+          "networkBandwidth": 1456,
+          "csdMetricScore": 90.5,
+          "csdWorkingBlockCount": 0,
+          "status": "READY"
+        }
+      ],
+      "csd5": [
+        {
+          "timestamp": "2024-11-14T10:51:49+09:00",
+          "id": "csd5",
+          "name": "nvme5",
+          "ip": "10.1.5.2",
+          "cpuTotal": 4,
+          "cpuUsed": 0.22,
+          "cpuUtilization": 5.45,
+          "memoryTotal": 6111708,
+          "memoryUsed": 895032,
+          "memoryUtilization": 14.64,
+          "diskTotal": 208562268,
+          "diskUsed": 34817120,
+          "diskUtilization": 16.69,
+          "networkRxData": 206,
+          "networkTxData": 706,
+          "networkBandwidth": 1456,
+          "csdMetricScore": 89.04,
+          "csdWorkingBlockCount": 0,
+          "status": "READY"
+        }
+      ],
+      "csd6": [
+        {
+          "timestamp": "2024-11-14T10:51:49+09:00",
+          "id": "csd6",
+          "name": "nvme6",
+          "ip": "10.1.6.2",
+          "cpuTotal": 4,
+          "cpuUsed": 0.11,
+          "cpuUtilization": 2.7,
+          "memoryTotal": 6111708,
+          "memoryUsed": 898784,
+          "memoryUtilization": 14.71,
+          "diskTotal": 208562268,
+          "diskUsed": 34817256,
+          "diskUtilization": 16.69,
+          "networkRxData": 206,
+          "networkTxData": 705,
+          "networkBandwidth": 1456,
+          "csdMetricScore": 90.09,
+          "csdWorkingBlockCount": 0,
+          "status": "READY"
+        }
+      ],
+      "csd7": [
+        {
+          "timestamp": "2024-11-14T10:51:49+09:00",
+          "id": "csd7",
+          "name": "nvme7",
+          "ip": "10.1.7.2",
+          "cpuTotal": 4,
+          "cpuUsed": 0.08,
+          "cpuUtilization": 2.1,
+          "memoryTotal": 6111708,
+          "memoryUsed": 896460,
+          "memoryUtilization": 14.67,
+          "diskTotal": 208562268,
+          "diskUsed": 35013968,
+          "diskUtilization": 16.79,
+          "networkRxData": 206,
+          "networkTxData": 705,
+          "networkBandwidth": 1456,
+          "csdMetricScore": 90.36,
+          "csdWorkingBlockCount": 0,
+          "status": "READY"
+        }
+      ],
+      "csd8": [
+        {
+          "timestamp": "2024-11-14T10:51:49+09:00",
+          "id": "csd8",
+          "name": "nvme8",
+          "ip": "10.1.8.2",
+          "cpuTotal": 4,
+          "cpuUsed": 0.08,
+          "cpuUtilization": 2,
+          "memoryTotal": 6111708,
+          "memoryUsed": 894488,
+          "memoryUtilization": 14.64,
+          "diskTotal": 208562268,
+          "diskUsed": 35013584,
+          "diskUtilization": 16.79,
+          "networkRxData": 206,
+          "networkTxData": 705,
+          "networkBandwidth": 1456,
+          "csdMetricScore": 90.42,
+          "csdWorkingBlockCount": 0,
+          "status": "READY"
+        }
+      ]
+    }
+  },
+  "storage-node2": {
+    "ssd_list": {},
+    "csd_list": {}
+  },
+  "storage-node3": {
+    "ssd_list": {},
+    "csd_list": {}
+  },
+  "storage-node4": {
+    "ssd_list": {
+      "ssd1": [
+        {
+          "timestamp": "2024-11-14T10:51:50+09:00",
+          "id": "ssd1",
+          "name": "sda",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd2": [
+        {
+          "timestamp": "2024-11-14T10:51:50+09:00",
+          "id": "ssd2",
+          "name": "sdb",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd3": [
+        {
+          "timestamp": "2024-11-14T10:51:50+09:00",
+          "id": "ssd3",
+          "name": "sdc",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd4": [
+        {
+          "timestamp": "2024-11-14T10:51:50+09:00",
+          "id": "ssd4",
+          "name": "sdd",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd5": [
+        {
+          "timestamp": "2024-11-14T10:51:50+09:00",
+          "id": "ssd5",
+          "name": "sde",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd6": [
+        {
+          "timestamp": "2024-11-14T10:51:50+09:00",
+          "id": "ssd6",
+          "name": "sdf",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd7": [
+        {
+          "timestamp": "2024-11-14T10:51:50+09:00",
+          "id": "ssd7",
+          "name": "sdg",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ],
+      "ssd8": [
+        {
+          "timestamp": "2024-11-14T10:51:50+09:00",
+          "id": "ssd8",
+          "name": "sdh",
+          "diskTotal": 1887436,
+          "diskUsed": 0,
+          "diskUtilization": 0
+        }
+      ]
+    },
+    "csd_list": {}
+  }
+}
+
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# curl "http://10.0.4.87:30800/dashboard/storage/metric/cpu"
+{"storage-node1":{"csd1":[{"timestamp":"2024-11-14T11:03:29+09:00","name":"nvme1","cpuTotal":4,"cpuUsed":0.13,"cpuUtilization":3.34}],"csd2":[{"timestamp":"2024-11-14T11:03:29+09:00","name":"nvme2","cpuTotal":4,"cpuUsed":0.14,"cpuUtilization":3.48}],"csd3":[{"timestamp":"2024-11-14T11:03:29+09:00","name":"nvme3","cpuTotal":4,"cpuUsed":0.14,"cpuUtilization":3.39}],"csd4":[{"timestamp":"2024-11-14T11:03:29+09:00","name":"nvme4","cpuTotal":4,"cpuUsed":0.1,"cpuUtilization":2.5}],"csd5":[{"timestamp":"2024-11-14T11:03:29+09:00","name":"nvme5","cpuTotal":4,"cpuUsed":0.12,"cpuUtilization":3.05}],"csd6":[{"timestamp":"2024-11-14T11:03:29+09:00","name":"nvme6","cpuTotal":4,"cpuUsed":0.1,"cpuUtilization":2.45}],"csd7":[{"timestamp":"2024-11-14T11:03:29+09:00","name":"nvme7","cpuTotal":4,"cpuUsed":0.09,"cpuUtilization":2.35}],"csd8":[{"timestamp":"2024-11-14T11:03:29+09:00","name":"nvme8","cpuTotal":4,"cpuUsed":0.1,"cpuUtilization":2.45}]},"storage-node2":{},"storage-node3":{},"storage-node4":{}}
+{
+  "storage-node1": {
+    "csd1": [
+      {
+        "timestamp": "2024-11-14T11:03:29+09:00",
+        "name": "nvme1",
+        "cpuTotal": 4,
+        "cpuUsed": 0.13,
+        "cpuUtilization": 3.34
+      }
+    ],
+    "csd2": [
+      {
+        "timestamp": "2024-11-14T11:03:29+09:00",
+        "name": "nvme2",
+        "cpuTotal": 4,
+        "cpuUsed": 0.14,
+        "cpuUtilization": 3.48
+      }
+    ],
+    "csd3": [
+      {
+        "timestamp": "2024-11-14T11:03:29+09:00",
+        "name": "nvme3",
+        "cpuTotal": 4,
+        "cpuUsed": 0.14,
+        "cpuUtilization": 3.39
+      }
+    ],
+    "csd4": [
+      {
+        "timestamp": "2024-11-14T11:03:29+09:00",
+        "name": "nvme4",
+        "cpuTotal": 4,
+        "cpuUsed": 0.1,
+        "cpuUtilization": 2.5
+      }
+    ],
+    "csd5": [
+      {
+        "timestamp": "2024-11-14T11:03:29+09:00",
+        "name": "nvme5",
+        "cpuTotal": 4,
+        "cpuUsed": 0.12,
+        "cpuUtilization": 3.05
+      }
+    ],
+    "csd6": [
+      {
+        "timestamp": "2024-11-14T11:03:29+09:00",
+        "name": "nvme6",
+        "cpuTotal": 4,
+        "cpuUsed": 0.1,
+        "cpuUtilization": 2.45
+      }
+    ],
+    "csd7": [
+      {
+        "timestamp": "2024-11-14T11:03:29+09:00",
+        "name": "nvme7",
+        "cpuTotal": 4,
+        "cpuUsed": 0.09,
+        "cpuUtilization": 2.35
+      }
+    ],
+    "csd8": [
+      {
+        "timestamp": "2024-11-14T11:03:29+09:00",
+        "name": "nvme8",
+        "cpuTotal": 4,
+        "cpuUsed": 0.1,
+        "cpuUtilization": 2.45
+      }
+    ]
+  },
+  "storage-node2": {},
+  "storage-node3": {},
+  "storage-node4": {}
+}
+
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# curl "http://10.0.4.87:30800/dashboard/storage/metric/memory"
+{"storage-node1":{"csd1":[{"timestamp":"2024-11-14T11:03:49+09:00","name":"nvme1","memoryTotal":6111708,"memoryUsed":906052,"memoryUtilization":14.82}],"csd2":[{"timestamp":"2024-11-14T11:03:49+09:00","name":"nvme2","memoryTotal":6111708,"memoryUsed":906972,"memoryUtilization":14.84}],"csd3":[{"timestamp":"2024-11-14T11:03:49+09:00","name":"nvme3","memoryTotal":6111708,"memoryUsed":894636,"memoryUtilization":14.64}],"csd4":[{"timestamp":"2024-11-14T11:03:49+09:00","name":"nvme4","memoryTotal":6111708,"memoryUsed":887660,"memoryUtilization":14.52}],"csd5":[{"timestamp":"2024-11-14T11:03:49+09:00","name":"nvme5","memoryTotal":6111708,"memoryUsed":895116,"memoryUtilization":14.65}],"csd6":[{"timestamp":"2024-11-14T11:03:49+09:00","name":"nvme6","memoryTotal":6111708,"memoryUsed":898864,"memoryUtilization":14.71}],"csd7":[{"timestamp":"2024-11-14T11:03:49+09:00","name":"nvme7","memoryTotal":6111708,"memoryUsed":896480,"memoryUtilization":14.67}],"csd8":[{"timestamp":"2024-11-14T11:03:49+09:00","name":"nvme8","memoryTotal":6111708,"memoryUsed":894356,"memoryUtilization":14.63}]},"storage-node2":{},"storage-node3":{},"storage-node4":{}}
+{
+  "storage-node1": {
+    "csd1": [
+      {
+        "timestamp": "2024-11-14T11:03:49+09:00",
+        "name": "nvme1",
+        "memoryTotal": 6111708,
+        "memoryUsed": 906052,
+        "memoryUtilization": 14.82
+      }
+    ],
+    "csd2": [
+      {
+        "timestamp": "2024-11-14T11:03:49+09:00",
+        "name": "nvme2",
+        "memoryTotal": 6111708,
+        "memoryUsed": 906972,
+        "memoryUtilization": 14.84
+      }
+    ],
+    "csd3": [
+      {
+        "timestamp": "2024-11-14T11:03:49+09:00",
+        "name": "nvme3",
+        "memoryTotal": 6111708,
+        "memoryUsed": 894636,
+        "memoryUtilization": 14.64
+      }
+    ],
+    "csd4": [
+      {
+        "timestamp": "2024-11-14T11:03:49+09:00",
+        "name": "nvme4",
+        "memoryTotal": 6111708,
+        "memoryUsed": 887660,
+        "memoryUtilization": 14.52
+      }
+    ],
+    "csd5": [
+      {
+        "timestamp": "2024-11-14T11:03:49+09:00",
+        "name": "nvme5",
+        "memoryTotal": 6111708,
+        "memoryUsed": 895116,
+        "memoryUtilization": 14.65
+      }
+    ],
+    "csd6": [
+      {
+        "timestamp": "2024-11-14T11:03:49+09:00",
+        "name": "nvme6",
+        "memoryTotal": 6111708,
+        "memoryUsed": 898864,
+        "memoryUtilization": 14.71
+      }
+    ],
+    "csd7": [
+      {
+        "timestamp": "2024-11-14T11:03:49+09:00",
+        "name": "nvme7",
+        "memoryTotal": 6111708,
+        "memoryUsed": 896480,
+        "memoryUtilization": 14.67
+      }
+    ],
+    "csd8": [
+      {
+        "timestamp": "2024-11-14T11:03:49+09:00",
+        "name": "nvme8",
+        "memoryTotal": 6111708,
+        "memoryUsed": 894356,
+        "memoryUtilization": 14.63
+      }
+    ]
+  },
+  "storage-node2": {},
+  "storage-node3": {},
+  "storage-node4": {}
+}
+
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# 
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# curl "http://10.0.4.87:30800/dashboard/storage/metric/network"
+{"storage-node1":{"csd1":[{"timestamp":"2024-11-14T11:03:54+09:00","name":"nvme1","networkRxData":1456,"networkTxData":206,"networkBandwidth":705}],"csd2":[{"timestamp":"2024-11-14T11:03:54+09:00","name":"nvme2","networkRxData":1456,"networkTxData":206,"networkBandwidth":704}],"csd3":[{"timestamp":"2024-11-14T11:03:54+09:00","name":"nvme3","networkRxData":1456,"networkTxData":206,"networkBandwidth":704}],"csd4":[{"timestamp":"2024-11-14T11:03:54+09:00","name":"nvme4","networkRxData":1456,"networkTxData":206,"networkBandwidth":706}],"csd5":[{"timestamp":"2024-11-14T11:03:54+09:00","name":"nvme5","networkRxData":1456,"networkTxData":206,"networkBandwidth":705}],"csd6":[{"timestamp":"2024-11-14T11:03:54+09:00","name":"nvme6","networkRxData":1456,"networkTxData":206,"networkBandwidth":706}],"csd7":[{"timestamp":"2024-11-14T11:03:54+09:00","name":"nvme7","networkRxData":1432,"networkTxData":206,"networkBandwidth":691}],"csd8":[{"timestamp":"2024-11-14T11:03:54+09:00","name":"nvme8","networkRxData":1456,"networkTxData":206,"networkBandwidth":706}]},"storage-node2":{},"storage-node3":{},"storage-node4":{}}
+{
+  "storage-node1": {
+    "csd1": [
+      {
+        "timestamp": "2024-11-14T11:03:54+09:00",
+        "name": "nvme1",
+        "networkRxData": 1456,
+        "networkTxData": 206,
+        "networkBandwidth": 705
+      }
+    ],
+    "csd2": [
+      {
+        "timestamp": "2024-11-14T11:03:54+09:00",
+        "name": "nvme2",
+        "networkRxData": 1456,
+        "networkTxData": 206,
+        "networkBandwidth": 704
+      }
+    ],
+    "csd3": [
+      {
+        "timestamp": "2024-11-14T11:03:54+09:00",
+        "name": "nvme3",
+        "networkRxData": 1456,
+        "networkTxData": 206,
+        "networkBandwidth": 704
+      }
+    ],
+    "csd4": [
+      {
+        "timestamp": "2024-11-14T11:03:54+09:00",
+        "name": "nvme4",
+        "networkRxData": 1456,
+        "networkTxData": 206,
+        "networkBandwidth": 706
+      }
+    ],
+    "csd5": [
+      {
+        "timestamp": "2024-11-14T11:03:54+09:00",
+        "name": "nvme5",
+        "networkRxData": 1456,
+        "networkTxData": 206,
+        "networkBandwidth": 705
+      }
+    ],
+    "csd6": [
+      {
+        "timestamp": "2024-11-14T11:03:54+09:00",
+        "name": "nvme6",
+        "networkRxData": 1456,
+        "networkTxData": 206,
+        "networkBandwidth": 706
+      }
+    ],
+    "csd7": [
+      {
+        "timestamp": "2024-11-14T11:03:54+09:00",
+        "name": "nvme7",
+        "networkRxData": 1432,
+        "networkTxData": 206,
+        "networkBandwidth": 691
+      }
+    ],
+    "csd8": [
+      {
+        "timestamp": "2024-11-14T11:03:54+09:00",
+        "name": "nvme8",
+        "networkRxData": 1456,
+        "networkTxData": 206,
+        "networkBandwidth": 706
+      }
+    ]
+  },
+  "storage-node2": {},
+  "storage-node3": {},
+  "storage-node4": {}
+}
+
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server#
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server#
+root@management-master:~/workspace/keti/OpenCSD-Management-Controller/OpenCSD-API-Server# curl "http://10.0.4.87:30800/dashboard/storage/metric/disk"
+{"storage-node1":{"csd1":[{"timestamp":"2024-11-14T11:17:24+09:00","name":"nvme1","diskTotal":208562268,"diskUsed":19324560,"diskUtilization":9.27}],"csd2":[{"timestamp":"2024-11-14T11:17:24+09:00","name":"nvme2","diskTotal":208562268,"diskUsed":37446416,"diskUtilization":17.95}],"csd3":[{"timestamp":"2024-11-14T11:17:24+09:00","name":"nvme3","diskTotal":208562268,"diskUsed":35090368,"diskUtilization":16.82}],"csd4":[{"timestamp":"2024-11-14T11:17:24+09:00","name":"nvme4","diskTotal":208562268,"diskUsed":35013928,"diskUtilization":16.79}],"csd5":[{"timestamp":"2024-11-14T11:17:24+09:00","name":"nvme5","diskTotal":208562268,"diskUsed":34817168,"diskUtilization":16.69}],"csd6":[{"timestamp":"2024-11-14T11:17:24+09:00","name":"nvme6","diskTotal":208562268,"diskUsed":34817304,"diskUtilization":16.69}],"csd7":[{"timestamp":"2024-11-14T11:17:24+09:00","name":"nvme7","diskTotal":208562268,"diskUsed":35014016,"diskUtilization":16.79}],"csd8":[{"timestamp":"2024-11-14T11:17:24+09:00","name":"nvme8","diskTotal":208562268,"diskUsed":35013632,"diskUtilization":16.79}]},"storage-node2":{"csd1":[],"csd2":[],"csd3":[],"csd4":[],"csd5":[],"csd6":[],"csd7":[],"csd8":[]},"storage-node3":{"csd1":[],"csd2":[],"csd3":[],"csd4":[],"csd5":[],"csd6":[]},"storage-node4":{"ssd1":[{"timestamp":"2024-11-14T11:17:25+09:00","name":"sda","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd2":[{"timestamp":"2024-11-14T11:17:25+09:00","name":"sdb","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd3":[{"timestamp":"2024-11-14T11:17:25+09:00","name":"sdc","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd4":[{"timestamp":"2024-11-14T11:17:25+09:00","name":"sdd","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd5":[{"timestamp":"2024-11-14T11:17:25+09:00","name":"sde","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd6":[{"timestamp":"2024-11-14T11:17:25+09:00","name":"sdf","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd7":[{"timestamp":"2024-11-14T11:17:25+09:00","name":"sdg","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}],"ssd8":[{"timestamp":"2024-11-14T11:17:25+09:00","name":"sdh","diskTotal":1887436,"diskUsed":0,"diskUtilization":0}]}}
+{
+  "storage-node1": {
+    "csd1": [
+      {
+        "timestamp": "2024-11-14T11:17:24+09:00",
+        "name": "nvme1",
+        "diskTotal": 208562268,
+        "diskUsed": 19324560,
+        "diskUtilization": 9.27
+      }
+    ],
+    "csd2": [
+      {
+        "timestamp": "2024-11-14T11:17:24+09:00",
+        "name": "nvme2",
+        "diskTotal": 208562268,
+        "diskUsed": 37446416,
+        "diskUtilization": 17.95
+      }
+    ],
+    "csd3": [
+      {
+        "timestamp": "2024-11-14T11:17:24+09:00",
+        "name": "nvme3",
+        "diskTotal": 208562268,
+        "diskUsed": 35090368,
+        "diskUtilization": 16.82
+      }
+    ],
+    "csd4": [
+      {
+        "timestamp": "2024-11-14T11:17:24+09:00",
+        "name": "nvme4",
+        "diskTotal": 208562268,
+        "diskUsed": 35013928,
+        "diskUtilization": 16.79
+      }
+    ],
+    "csd5": [
+      {
+        "timestamp": "2024-11-14T11:17:24+09:00",
+        "name": "nvme5",
+        "diskTotal": 208562268,
+        "diskUsed": 34817168,
+        "diskUtilization": 16.69
+      }
+    ],
+    "csd6": [
+      {
+        "timestamp": "2024-11-14T11:17:24+09:00",
+        "name": "nvme6",
+        "diskTotal": 208562268,
+        "diskUsed": 34817304,
+        "diskUtilization": 16.69
+      }
+    ],
+    "csd7": [
+      {
+        "timestamp": "2024-11-14T11:17:24+09:00",
+        "name": "nvme7",
+        "diskTotal": 208562268,
+        "diskUsed": 35014016,
+        "diskUtilization": 16.79
+      }
+    ],
+    "csd8": [
+      {
+        "timestamp": "2024-11-14T11:17:24+09:00",
+        "name": "nvme8",
+        "diskTotal": 208562268,
+        "diskUsed": 35013632,
+        "diskUtilization": 16.79
+      }
+    ]
+  },
+  "storage-node2": {},
+  "storage-node3": {},
+  "storage-node4": {
+    "ssd1": [
+      {
+        "timestamp": "2024-11-14T11:17:25+09:00",
+        "name": "sda",
+        "diskTotal": 1887436,
+        "diskUsed": 0,
+        "diskUtilization": 0
+      }
+    ],
+    "ssd2": [
+      {
+        "timestamp": "2024-11-14T11:17:25+09:00",
+        "name": "sdb",
+        "diskTotal": 1887436,
+        "diskUsed": 0,
+        "diskUtilization": 0
+      }
+    ],
+    "ssd3": [
+      {
+        "timestamp": "2024-11-14T11:17:25+09:00",
+        "name": "sdc",
+        "diskTotal": 1887436,
+        "diskUsed": 0,
+        "diskUtilization": 0
+      }
+    ],
+    "ssd4": [
+      {
+        "timestamp": "2024-11-14T11:17:25+09:00",
+        "name": "sdd",
+        "diskTotal": 1887436,
+        "diskUsed": 0,
+        "diskUtilization": 0
+      }
+    ],
+    "ssd5": [
+      {
+        "timestamp": "2024-11-14T11:17:25+09:00",
+        "name": "sde",
+        "diskTotal": 1887436,
+        "diskUsed": 0,
+        "diskUtilization": 0
+      }
+    ],
+    "ssd6": [
+      {
+        "timestamp": "2024-11-14T11:17:25+09:00",
+        "name": "sdf",
+        "diskTotal": 1887436,
+        "diskUsed": 0,
+        "diskUtilization": 0
+      }
+    ],
+    "ssd7": [
+      {
+        "timestamp": "2024-11-14T11:17:25+09:00",
+        "name": "sdg",
+        "diskTotal": 1887436,
+        "diskUsed": 0,
+        "diskUtilization": 0
+      }
+    ],
+    "ssd8": [
+      {
+        "timestamp": "2024-11-14T11:17:25+09:00",
+        "name": "sdh",
+        "diskTotal": 1887436,
+        "diskUsed": 0,
+        "diskUtilization": 0
+      }
+    ]
+  }
+}

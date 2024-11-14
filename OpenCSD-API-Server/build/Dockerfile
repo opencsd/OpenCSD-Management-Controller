@@ -4,7 +4,7 @@ ENV OPERATOR=/usr/local/bin/opencsd-api-server \
     USER_UID=root \
     USER_NAME=opencsd-api-server
 
-COPY _output/bin/opencsd-api-server ${OPERATOR}
+COPY bin/opencsd-api-server ${OPERATOR}
 
 COPY bin /usr/local/bin
 RUN  /usr/local/bin/user_setup
