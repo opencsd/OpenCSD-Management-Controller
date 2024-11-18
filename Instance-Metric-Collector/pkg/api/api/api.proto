@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "gpu-metric-collector/pkg/api/api";
+
+service Traveler {
+    rpc NodeGPUInfo(Request) returns(NodeGPUResponse);
+}
+
+message Request {
+}
+
+message NodeGPUResponse {
+    int32 total_gpu_count = 1;
+    map<string, int32> index_uuid_map = 2;
+    repeated NVLink nvlink_info = 3;
+}
+
+message NVLink {
+    string gpu1uuid = 1;
+    string gpu2uuid = 2;
+    int32 lanecount = 3;
+}

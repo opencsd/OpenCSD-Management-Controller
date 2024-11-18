@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package config;
+
+option go_package = "gpu-metric-collector/pkg/api/config";
+
+service NodeMetric {
+	rpc receiveNodeMetric (NodeMetricRequest) returns (MetricResponse);
+}
+
+message NodeMetricRequest {
+	int64 id = 1;
+    
+	string nodeName = 2;
+	string nodeIp = 3;
+	string nodeStatus = 4;
+
+	int64 totalCpuCapacity = 5;
+	int64 cpuUsage = 6;
+
+	int64 totalMemCapacity = 7;
+	int64 memUsage = 8;
+
+	int64 totalDiskCapacity = 9;
+	int64 diskUsage = 10;
+
+	int64 networkRxData = 11;
+	int64 networkTxData = 12;
+}
+
+service CSDMetric {
+    rpc receiveCSDMetric (CSDMetricRequest) returns (MetricResponse);
+}
+
+message CSDMetricRequest { // csd metric 전송
+    int32 id = 1;
+    
+	int32 totalCpuCapacity = 2;
+	double cpuUsage = 3;
+	double cpuUsagePercent = 4;
+
+	int32 totalMemCapacity = 5;
+	int32 memUsage = 6;
+	double memUsagePercent = 7;
+
+	int32 totalDiskCapacity = 8;
+	int32 diskUsage = 9;
+	double diskUsagePercent = 10;
+
+	int32 networkBandwidth = 11;
+	int32 networkRxData = 12;
+	int32 networkTxData = 13;
+
+	double csdMetricScore = 14;
+}
+
+message MetricResponse { // csd metric 응답
+    string json_config = 1;
+}

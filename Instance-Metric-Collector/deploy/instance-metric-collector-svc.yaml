@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: instance-metric-collector
+  namespace: system-operator
+  labels:
+    name: instance-metric-collector
+    namespace: system-operator
+spec:
+  type: NodePort
+  ports:
+    - port: 40807
+      targetPort: 40807
+      nodePort: 30807
+      protocol: TCP
+  selector:
+    name: instance-metric-collector
+    namespace: system-operator
