@@ -14,11 +14,16 @@ import (
 var ManagementMaster_ *MasterNode
 
 var (
-	OPENCSD_API_SERVER_PORT       = os.Getenv("OPENCSD_API_SERVER_PORT")
-	OPENCSD_ENGINE_DEPLOYER_PORT  = os.Getenv("OPENCSD_ENGINE_DEPLOYER_PORT")
-	OPENCSD_INSTANCE_MANAGER_PORT = os.Getenv("OPENCSD_INSTANCE_MANAGER_PORT")
-	OPENCSD_VOLUME_ALLOCATOR_PORT = os.Getenv("OPENCSD_VOLUME_ALLOCATOR_PORT")
-	STORAGE_API_SERVER_PORT       = os.Getenv("STORAGE_API_SERVER_PORT")
+	OPENCSD_API_SERVER_PORT = "40800"
+	STORAGE_API_SERVER_PORT = "40306"
+	OPENCSD_CONTROLLER_DNS  = "opencsd-controller-svc.management-controller.svc.cluster.local:40801"
+)
+
+var (
+	INSTANCE_METRIC_INFLUXDB_DB       = os.Getenv("INFLUXDB_DB")
+	INSTANCE_METRIC_INFLUXDB_PASSWORD = os.Getenv("INFLUXDB_PASSWORD")
+	INSTANCE_METRIC_INFLUXDB_USER     = os.Getenv("INFLUXDB_USER")
+	INSTANCE_METRIC_INFLUXDB_PORT     = os.Getenv("INFLUXDB_PORT")
 )
 
 const (
@@ -28,16 +33,17 @@ const (
 
 const (
 	STORAGE   = "STORAGE"
-	OPERATION = "OPERATOR"
+	OPERATION = "OPERATION"
 )
 
 type MasterNode struct {
-	ClusterName   string
-	NodeName      string
-	MasterIP      string
-	clusterConfig ClusterConfig
-	StorageLayer  []WorkerNode
-	OperatorLayer []WorkerNode
+	ClusterName    string
+	NodeName       string
+	MasterIP       string
+	MatserStatus   string
+	clusterConfig  ClusterConfig
+	StorageLayer   map[string]WorkerNode
+	OperationLayer map[string]WorkerNode
 }
 
 type ClusterConfig struct {
@@ -75,52 +81,63 @@ func (masterNode *MasterNode) InitCluster() {
 
 	masterNode.clusterConfig.clientset = clientset
 
+	masterNode.StorageLayer = make(map[string]WorkerNode)
+	masterNode.OperationLayer = make(map[string]WorkerNode)
+
 	nodes, err := clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		fmt.Println("Get Node error:", err)
 	} else {
 		for _, node := range nodes.Items {
-			var workerNode WorkerNode
-			for _, condition := range node.Status.Conditions {
-				if condition.Type == corev1.NodeReady {
-					workerNode.Status = READY
-					if node.Name == masterName {
-						for _, address := range node.Status.Addresses {
-							if address.Type == "InternalIP" {
-								masterNode.MasterIP = address.Address
-								break
-							}
-						}
-					} else {
-						for _, address := range node.Status.Addresses {
-							if address.Type == "InternalIP" {
-								workerNode.NodeIP = address.Address
-								workerNode.NodeName = node.Name
-
-								if node.Labels["layer"] == "storage" {
-									workerNode.Layer = STORAGE
-									masterNode.StorageLayer = append(masterNode.StorageLayer, workerNode)
-								} else if node.Labels["layer"] == "operator" {
-									workerNode.Layer = OPERATION
-									masterNode.OperatorLayer = append(masterNode.OperatorLayer, workerNode)
-								}
-
-								break
-							}
-						}
+			if node.Name == masterName {
+				for _, address := range node.Status.Addresses {
+					if address.Type == "InternalIP" {
+						masterNode.MasterIP = address.Address
+						break
 					}
-				} else {
-					workerNode.NodeName = node.Name
-					workerNode.Status = NOTREADY
+				}
+
+				for _, condition := range node.Status.Conditions {
+					if condition.Type == corev1.NodeReady {
+						masterNode.MatserStatus = READY
+					} else {
+						masterNode.MatserStatus = NOTREADY
+					}
+				}
+			} else {
+				var workerNode WorkerNode
+				workerNode.NodeName = node.Name
+
+				for _, condition := range node.Status.Conditions {
+					if condition.Type == corev1.NodeReady {
+						workerNode.Status = READY
+					} else {
+						workerNode.Status = NOTREADY
+					}
+				}
+
+				for _, address := range node.Status.Addresses {
+					if address.Type == "InternalIP" {
+						workerNode.NodeIP = address.Address
+						break
+					}
+				}
+
+				if node.Labels["layer"] == "storage" {
+					workerNode.Layer = STORAGE
+					masterNode.StorageLayer[node.Name] = workerNode
+				} else if node.Labels["layer"] == "operation" {
+					workerNode.Layer = OPERATION
+					masterNode.OperationLayer[node.Name] = workerNode
 				}
 			}
 		}
 	}
 }
 
-type ClusterStorageNodeInfo struct {
-	ClusterName     string                `json:"clusterName"`
-	StorageNodeList map[string]WorkerNode `json:"storageNodeList"`
+type ClusterNodeInfo struct {
+	ClusterName string                `json:"clusterName"`
+	NodeList    map[string]WorkerNode `json:"nodeList"`
 }
 
 type CsdEntry struct {
@@ -274,4 +291,46 @@ func NewStorageInfoMessage() StorageInfoMessage {
 		SsdList: make(map[string][]SsdMetric),
 		CsdList: make(map[string][]CsdMetricMin),
 	}
+}
+
+type Instance struct {
+	InstanceName        string `json:"instanceName"`
+	AccessPort          string `json:"accessPort"`
+	InstanceType        string `json:"instanceType"`
+	OperationNode       string `json:"operationNode"`
+	StorageNode         string `json:"storageNode"`
+	VolumeName          string `json:"volumeName"`
+	QueryEngineStatus   string `json:"queryEngineStatus"`
+	StorageEngineStatus string `json:"storageEngineStatus"`
+	InstanceStatus      string `json:"instanceStatus"`
+}
+
+type VolumeInfo struct {
+	VolumeName string `json:"volumeName"`
+	VolumePath string `json:"volumePath"`
+	NodeName   string `json:"nodeName"`
+	// SizeTotal     float64 `json:"sizeTotal"`
+	// SizeUsed      float64 `json:"sizeUsed"`
+	// SizeAvailable float64 `json:"sizeAvailable"`
+	// Utilization   float64 `json:"instanceUtilization"`
+	StorageType string `json:"storageType"`
+	VolumeType  string `json:"volumeType"`
+}
+
+type InstanceMetric struct {
+	Time           string  `json:"timestamp"`
+	InstanceName   string  `json:"instanceName"`
+	CpuUsage       float64 `json:"cpuUsage"`
+	MemoryUsage    float64 `json:"memoryUsage"`
+	StorageUsage   float64 `json:"storageUsage"`
+	NetworkRxUsage float64 `json:"networkRxUsage"`
+	NetworkTxUsage float64 `json:"networkTxUsage"`
+}
+
+type EnvironmentInfo struct {
+	DbName     string `json:"dbName"`
+	DbType     string `json:"dbType"`
+	Algorithm  string `json:"algorithm"`
+	BlockCount string `json:"blockCount"`
+	DbSize     string `json:"dbSize"`
 }

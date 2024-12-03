@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: opencsd-api-server
+  name: opencsd-api-server-svc
   namespace: management-controller
   labels:
     name: opencsd-api-server

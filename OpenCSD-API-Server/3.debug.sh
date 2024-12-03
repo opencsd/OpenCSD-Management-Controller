@@ -1,13 +1,12 @@
-#/bin/bash
-NS=management-controller
+#!/bin/bash 
 
-NAME=$(kubectl get pod -n $NS | grep -E 'opencsd-api-server' | awk '{print $1}')
-
-#echo "Exec Into '"$NAME"'"
-
-#kubectl exec -it $NAME -n $NS /bin/sh
-
-for ((;;))
+while [ -z $PODNAME ]
 do
-kubectl logs -f -n $NS $NAME
+    PODNAME=`kubectl get po -o=name -A --field-selector=status.phase=Running | grep opencsd-api-server`
+    PODNAME="${PODNAME:4}"
 done
+
+kubectl logs $PODNAME -n management-controller -f 
+
+
+

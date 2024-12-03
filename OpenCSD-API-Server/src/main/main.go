@@ -8,62 +8,130 @@ import (
 	types "opencsd-api-server/src/type"
 )
 
+// CORS 미들웨어
+func enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*") // 모든 도메인 허용
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// OPTIONS 요청에 대해 허용된 CORS 설정만 반환
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	types.ManagementMaster_ = &types.MasterNode{}
 	types.ManagementMaster_.InitCluster()
 
 	fmt.Println("[OpenCSD API Server] run on 0.0.0.0:", types.OPENCSD_API_SERVER_PORT)
 
-	http.HandleFunc("/instance/create/opencsd", handler.CreateOpenCSD)
-	http.HandleFunc("/instance/create/mysql", handler.CreateMySQL)
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/instance/create/opencsd", handler.CreateOpenCSD) //post, instanceCreationInfo
+	mux.HandleFunc("/instance/create/mysql", handler.CreateMySQL)     //post, instanceCreationInfo
+	mux.HandleFunc("/instance/create/graphdb", handler.CreateGraphDB) //post, instanceCreationInfo
+
+	mux.HandleFunc("/instance/delete/opencsd", handler.DeleteOpenCSD)    //?instance=
+	mux.HandleFunc("/instance/delete/mysql", handler.DeleteMySQL)        //?instance=
+	mux.HandleFunc("/instance/delete/graphdb", handler.DeleteGraphDB)    //?instance=
+	mux.HandleFunc("/instance/delete/namspace", handler.DeleteNamespace) //?instance=
+
+	mux.HandleFunc("/volume/allocate", handler.VolumeAllocateHandler)     //post, volumeCreationInfo
+	mux.HandleFunc("/volume/deallocate", handler.VolumeDeAllocateHandler) //?volume=
+
+	mux.HandleFunc("/cluster/node-list", handler.ClusterNodeListHandler)  // ?layer=
+	mux.HandleFunc("/cluster/node/volume", handler.VolumeInfoHandler)     // ?node=
+	mux.HandleFunc("/cluster/node/instance", handler.InstanceInfoHandler) // ?node=&instance=
+
+	mux.HandleFunc("/cluster/storage-node-list", handler.ClusterStorageNodeListHandler)
+	mux.HandleFunc("/node/info/storage-list", handler.NodeStorageListHandler)      // ?node=&count=
+	mux.HandleFunc("/node/info/storage", handler.NodeStorageInfoHandler)           // ?node=&count=
+	mux.HandleFunc("/node/metric/disk", handler.NodeDiskInfoHandler)               // ?node=&count=
+	mux.HandleFunc("/node/metric/all", handler.NodeMetricInfoHandler)              // ?node=&count=
+	mux.HandleFunc("/storage/info", handler.NodeStorageInfoHandler)                // ?node=&storage=&count=
+	mux.HandleFunc("/storage/metric/all", handler.StorageMetricInfoHandler)        // ?node=&storage=&count=
+	mux.HandleFunc("/storage/metric/cpu", handler.StorageMetricCpuHandler)         // ?node=&storage=&count=
+	mux.HandleFunc("/storage/metric/memory", handler.StorageMetricMemoryHandler)   // ?node=&storage=&count=
+	mux.HandleFunc("/storage/metric/network", handler.StorageMetricNetworkHandler) // ?node=&storage=&count=
+	mux.HandleFunc("/storage/metric/disk", handler.StorageMetricDiskHandler)       // ?node=&storage=&count=
+
+	mux.HandleFunc("/instance/metric", handler.NodeStorageListHandler) // ?node=&count=
+
+	mux.HandleFunc("/workbench/main/connection", handler.ConnectInstance)                     //post, ConnectionInfo
+	mux.HandleFunc("/workbench/monitoring/connection-info", handler.MonitoringConnectionInfo) //get, ?session-id=
+	mux.HandleFunc("/workbench/monitoring/metric/node", handler.NodeMetric)                   //get, ?session-id=&count=
+	mux.HandleFunc("/workbench/monitoring/metric/instance", handler.InstanceMetric)           //get, ?session-id=&count=
+	mux.HandleFunc("/workbench/monitoring/metric/csd", handler.CsdMetric)                     //get, ?session-id=&csd-id=&count=
+	mux.HandleFunc("/workbench/query/run", handler.ExecuteQuery)                              //get, ?session-id=, json
+	mux.HandleFunc("/workbench/query/schema-info", handler.GetSchemaInfo)                     //get, ?session-id=
+	mux.HandleFunc("/workbench/query/metric", handler.NodeMetricMin)                          //get, ?session-id=
+	mux.HandleFunc("/workbench/query/environment-info", handler.QueryEnvInfo)                 //get, ?session-id=
+	mux.HandleFunc("/workbench/query/environment-edit", handler.QueryEnvEdit)                 //post, EnvironmentInfo
+	mux.HandleFunc("/workbench/query/log/delete", handler.DeleteQueryLog)                     //get, ?session-id=
+	mux.HandleFunc("/workbench/query/log/get", handler.GetQueryLog)                           //get, ?session-id=?log-id=
+	mux.HandleFunc("/workbench/validator/run", handler.ExecuteQuery)                          //get, ?session-id=
+	mux.HandleFunc("/workbench/validator/schema-info", handler.GetSchemaInfo)                 //get, ?session-id=
+	mux.HandleFunc("/workbench/validator/metric", handler.NodeMetricMin)                      //get, ?session-id=&count=&start-time=&end-time=
+	mux.HandleFunc("/workbench/validator/environment-info", handler.QueryEnvInfo)             //get, ?session-id=
+	mux.HandleFunc("/workbench/validator/log", handler.QueryEnvInfo)                          //get, ?session-id=?log-id=
+
+	//gluesys
 
 	//1. ClusterNodeList
-	// http.HandleFunc("/dashboard/cluster/storage-node-list", handler.ClusterNodeListHandler)
-	http.HandleFunc("/dashboard/cluster/storage-node-list", handler.ClusterNodeListHandler)
+	// mux.HandleFunc("/dashboard/cluster/storage-node-list", handler.ClusterNodeListHandler)
+	mux.HandleFunc("/dashboard/cluster/storage-node-list", handler.ClusterStorageNodeListHandler)
 
 	//2. NodeStorageList
-	// http.HandleFunc("/dashboard/node/storagelist", handler.NodeStorageListHandler)
-	// http.HandleFunc("/storagepage/storage/storagelist", handler.NodeStorageListHandler)
-	// http.HandleFunc("/diskpage/disk/storagelist", handler.NodeStorageListHandler)
-	http.HandleFunc("/dashboard/node/info/storage-list", handler.NodeStorageListHandler)
+	// mux.HandleFunc("/dashboard/node/storagelist", handler.NodeStorageListHandler)
+	// mux.HandleFunc("/storagepage/storage/storagelist", handler.NodeStorageListHandler)
+	// mux.HandleFunc("/diskpage/disk/storagelist", handler.NodeStorageListHandler)
+	mux.HandleFunc("/dashboard/node/info/storage-list", handler.NodeStorageListHandler)
 
 	//4. NodeStorageInfo
-	// http.HandleFunc("/dashboard/storage/storageinfo", handler.NodeStorageInfoHandler)
-	http.HandleFunc("/dashboard/node/info/storage", handler.NodeStorageInfoHandler)
+	// mux.HandleFunc("/dashboard/storage/storageinfo", handler.NodeStorageInfoHandler)
+	mux.HandleFunc("/dashboard/node/info/storage", handler.NodeStorageInfoHandler)
 
 	//3. NodeDiskInfo
-	// http.HandleFunc("/dashboard/node/diskinfo", handler.NodeDiskInfoHandler)
-	http.HandleFunc("/dashboard/node/metric/disk", handler.NodeDiskInfoHandler)
+	// mux.HandleFunc("/dashboard/node/diskinfo", handler.NodeDiskInfoHandler)
+	mux.HandleFunc("/dashboard/node/metric/disk", handler.NodeDiskInfoHandler)
 
 	//5. NodeMetricInfo
-	// http.HandleFunc("/dashboard/node/metricinfo", handler.NodeMetricInfoHandler)
-	http.HandleFunc("/dashboard/node/metric/all", handler.NodeMetricInfoHandler)
+	// mux.HandleFunc("/dashboard/node/metricinfo", handler.NodeMetricInfoHandler)
+	mux.HandleFunc("/dashboard/node/metric/all", handler.NodeMetricInfoHandler)
 
 	//6. StorageInfo
-	// http.HandleFunc("/storagepage/storage/storageinfo", handler.StorageInfoHandler)
-	http.HandleFunc("/dashboard/storage/info", handler.NodeStorageInfoHandler)
+	// mux.HandleFunc("/storagepage/storage/storageinfo", handler.StorageInfoHandler)
+	mux.HandleFunc("/dashboard/storage/info", handler.NodeStorageInfoHandler)
 
 	//7. CSDMetricInfo
-	// http.HandleFunc("/storagepage/storage/csdmetricinfo", handler.CSDMetricInfoHandler)
-	http.HandleFunc("/dashboard/storage/metric/all", handler.StorageMetricInfoHandler)
+	// mux.HandleFunc("/storagepage/storage/csdmetricinfo", handler.CSDMetricInfoHandler)
+	mux.HandleFunc("/dashboard/storage/metric/all", handler.StorageMetricInfoHandler)
 
 	//8. CSDCpuInfo
-	// http.HandleFunc("/storagepage/storage/csdcpuinfo", handler.CPUInfoHandler)
-	http.HandleFunc("/dashboard/storage/metric/cpu", handler.StorageMetricCpuHandler)
+	// mux.HandleFunc("/storagepage/storage/csdcpuinfo", handler.CPUInfoHandler)
+	mux.HandleFunc("/dashboard/storage/metric/cpu", handler.StorageMetricCpuHandler)
 
 	//9. CSDMemInfo
-	// http.HandleFunc("/storagepage/storage/csdmeminfo", handler.MemInfoHandler)
-	http.HandleFunc("/dashboard/storage/metric/memory", handler.StorageMetricMemoryHandler)
+	// mux.HandleFunc("/storagepage/storage/csdmeminfo", handler.MemInfoHandler)
+	mux.HandleFunc("/dashboard/storage/metric/memory", handler.StorageMetricMemoryHandler)
 
 	//10. CSDNetInfo
-	// http.HandleFunc("/storagepage/storage/csdnetinfo", handler.NetInfoHandler)
-	http.HandleFunc("/dashboard/storage/metric/network", handler.StorageMetricNetworkHandler)
+	// mux.HandleFunc("/storagepage/storage/csdnetinfo", handler.NetInfoHandler)
+	mux.HandleFunc("/dashboard/storage/metric/network", handler.StorageMetricNetworkHandler)
 
 	//11. CSDDiskInfo
-	// http.HandleFunc("/storagepage/storage/csddiskinfo", handler.DiskInfoHandler)
-	http.HandleFunc("/dashboard/storage/metric/disk", handler.StorageMetricDiskHandler)
+	// mux.HandleFunc("/storagepage/storage/csddiskinfo", handler.DiskInfoHandler)
+	mux.HandleFunc("/dashboard/storage/metric/disk", handler.StorageMetricDiskHandler)
 
-	// http.HandleFunc("/dashboard/storage/metric/power", handler.StorageMetricPowerHandler)
+	// mux.HandleFunc("/dashboard/storage/metric/power", handler.StorageMetricPowerHandler)
 
-	http.ListenAndServe(":"+types.OPENCSD_API_SERVER_PORT, nil)
+	//	http.ListenAndServe(":"+types.OPENCSD_API_SERVER_PORT, nil)
+	// CORS 미들웨어와 함께 서버 실행
+	http.ListenAndServe(":"+types.OPENCSD_API_SERVER_PORT, enableCORS(mux))
 }

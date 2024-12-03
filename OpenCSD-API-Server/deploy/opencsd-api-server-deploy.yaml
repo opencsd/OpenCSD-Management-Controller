@@ -23,20 +23,25 @@ spec:
           image: ketidevit2/opencsd-api-server:v1.0
           imagePullPolicy: Always
           env:
-            - name: OPENCSD_API_SERVER_PORT
-              value: "40800"
-            - name: OPENCSD_ENGINE_DEPLOYER_PORT
-              value: "40804"
-            - name: OPENCSD_INSTANCE_MANAGER_PORT
-              value: "40805"
-            - name: OPENCSD_VOLUME_ALLOCATOR_PORT
-              value: "40806"
-            - name: STORAGE_API_SERVER_PORT
-              value: "40306"
+            - name: INFLUXDB_DB
+              value: opencsd_instance_metric_db
+            - name: INFLUXDB_PASSWORD
+              value: ketilinux
+            - name: INFLUXDB_USER
+              value: keti
+            - name: INFLUXDB_PORT
+              value: "8086"
             - name: NODE_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+          resources:
+                requests:
+                  memory: "128Mi"
+                  cpu: "250m"    
+                limits:
+                  memory: "1Gi" 
+                  cpu: "1"
       nodeSelector:
         key: master
 ---
