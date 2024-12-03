@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: opencsd-controller-svc
+  namespace: management-controller
+spec:
+  ports:
+    - port: 40801
+      targetPort: 40801
+      protocol: TCP
+  selector:
+    app: opencsd-controller
