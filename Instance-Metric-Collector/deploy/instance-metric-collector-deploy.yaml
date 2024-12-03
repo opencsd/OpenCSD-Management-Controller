@@ -1,71 +1,231 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: instance-metric-initdb-config
+  namespace: management-controller
+data:
+  initdb.sh: |
+    #!/bin/sh
+    influx -execute "CREATE DATABASE opencsd_instance_metric_db"
+    influx -execute "CREATE RETENTION POLICY 'day_policy' ON 'opencsd_instance_metric_db' DURATION 1d REPLICATION 1 DEFAULT"
+---
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
   name: instance-metric-collector
-  namespace: system-operator
+  namespace: management-controller
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      name: instance-metric-collector
-      namespace: system-operator
+      app: instance-metric-collector
   template:
     metadata:
       labels:
-        name: instance-metric-collector
-        namespace: system-operator
+        app: instance-metric-collector
     spec:
       nodeSelector:
-        layer: operator
+        layer: operation
+      serviceAccountName: instance-metric-collector
       imagePullSecrets:
         - name: regcred
+      hostNetwork: true
       containers:
-        - name: instance-metric-collector
-          image: ketidevit2/instance-metric-collector:v0.0.1
-          imagePullPolicy: Always
+        - name: influxdb
+          image: influxdb:1.7
+          ports:
+            - containerPort: 8086 
           env:
+            - name: INFLUXDB_DB
+              value: opencsd_instance_metric_db
+            - name: INFLUXDB_PASSWORD
+              value: ketilinux
+            - name: INFLUXDB_USER
+              value: keti
+          volumeMounts:
+            - name: influxdb-storage
+              mountPath: /var/lib/influxdb
+            - name: instance-metric-db-entrypoint
+              mountPath: /docker-entrypoint-initdb.d
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "500m" 
+        - name: instance-metric-collector
+          image: ketidevit2/instance-metric-collector:v1.0
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+          env:
+            - name: INFLUXDB_DB
+              value: opencsd_instance_metric_db
+            - name: INFLUXDB_PASSWORD
+              value: ketilinux
+            - name: INFLUXDB_USER
+              value: keti
+            - name: INFLUXDB_PORT
+              value: "8086"
             - name: NODE_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
-            - name: DEBUGG_LEVEL
-              value: "LEVEL1"
-            - name: NODE_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
-            - name: COLLECT_INTERVAL
-              value: "5"
-            - name: INFLUX_IP
-              value: "10.0.4.87"
-            - name: INFLUX_PORT
-              value: "30701"
-            - name: INFLUX_USERNAME
-              value: "keti"
-            - name: INFLUX_PASSWORD
-              value: "ketilinux"
           volumeMounts:
-            - mountPath: /mnt/power
-              name: metric-power
-            - mountPath: /mnt/cpu
-              name: metric-cpu-tick
+            - name: proc-volume
+              mountPath: /proc
+            - name: net-volume
+              mountPath: /sys/class/net
+            - name: power-volume
+              mountPath: /sys/class/powercap
+            - name: dev-volume
+              mountPath: /dev
       volumes:
-        - name: metric-power
+        - name: proc-volume
           hostPath:
-            type: Directory
-            path: /sys/devices/virtual/powercap/intel-rapl
-        - name: metric-cpu-tick
-          hostPath:
-            type: Directory
             path: /proc
-        - name: time
+        - name: net-volume
           hostPath:
-            type: Directory
-            path: /etc/localtime
+            path: /sys/class/net
+        - name: power-volume     
+          hostPath:
+            path: /sys/class/powercap
+        - name: dev-volume
+          hostPath:
+            path: /dev
+        - name: influxdb-storage
+          hostPath:
+            path: /mnt/instance_metric_influxdb
+        - name: instance-metric-db-entrypoint
+          configMap:
+            name: instance-metric-initdb-config
+            defaultMode: 0755
       tolerations:
-        - key: node.kubernetes.io/not-ready
-          effect: NoExecute
-          tolerationSeconds: 0
-        - key: node.kubernetes.io/unreachable
-          effect: NoExecute
-          tolerationSeconds: 0
+        - key: "use"
+          operator: "Equal"
+          value: "no"
+          effect: "NoSchedule"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: instance-metric-collector
+  namespace: management-controller
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: instance-metric-collector
+subjects:
+- kind: ServiceAccount
+  name: instance-metric-collector
+  namespace: management-controller
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: instance-metric-collector-svc
+#   namespace: management-controller
+# spec:
+#   clusterIP: None
+#   selector:
+#     name: instance-metric-collector
+#     namespace: management-controller
+#   ports:
+#     - protocol: TCP
+#       port: 40307  
+#       targetPort: 40307 
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: influxdb-svc
+#   namespace: management-controller
+# spec:
+#   clusterIP: None
+#   selector:
+#     name: instance-metric-collector
+#     namespace: management-controller
+#   ports:
+#     - protocol: TCP
+#       port: 8086  
+#       targetPort: 8086 
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: instance-metric-collector
+#   namespace: system-operator
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       name: instance-metric-collector
+#       namespace: system-operator
+#   template:
+#     metadata:
+#       labels:
+#         name: instance-metric-collector
+#         namespace: system-operator
+#     spec:
+#       nodeSelector:
+#         layer: operator
+#       imagePullSecrets:
+#         - name: regcred
+#       containers:
+#         - name: instance-metric-collector
+#           image: ketidevit2/instance-metric-collector:v0.0.1
+#           imagePullPolicy: Always
+#           env:
+#             - name: NODE_NAME
+#               valueFrom:
+#                 fieldRef:
+#                   fieldPath: spec.nodeName
+#             - name: DEBUGG_LEVEL
+#               value: "LEVEL1"
+#             - name: NODE_IP
+#               valueFrom:
+#                 fieldRef:
+#                   fieldPath: status.hostIP
+#             - name: COLLECT_INTERVAL
+#               value: "5"
+#             - name: INFLUX_IP
+#               value: "10.0.4.87"
+#             - name: INFLUX_PORT
+#               value: "30701"
+#             - name: INFLUX_USERNAME
+#               value: "keti"
+#             - name: INFLUX_PASSWORD
+#               value: "ketilinux"
+#           volumeMounts:
+#             - mountPath: /mnt/power
+#               name: metric-power
+#             - mountPath: /mnt/cpu
+#               name: metric-cpu-tick
+#           resources:
+#                 requests:
+#                   memory: "128Mi"
+#                   cpu: "250m"    
+#                 limits:
+#                   memory: "1Gi" 
+#                   cpu: "1"
+#       volumes:
+#         - name: metric-power
+#           hostPath:
+#             type: Directory
+#             path: /sys/devices/virtual/powercap/intel-rapl
+#         - name: metric-cpu-tick
+#           hostPath:
+#             type: Directory
+#             path: /proc
+#         - name: time
+#           hostPath:
+#             type: Directory
+#             path: /etc/localtime
+#       tolerations:
+#         - key: node.kubernetes.io/not-ready
+#           effect: NoExecute
+#           tolerationSeconds: 0
+#         - key: node.kubernetes.io/unreachable
+#           effect: NoExecute
+#           tolerationSeconds: 0

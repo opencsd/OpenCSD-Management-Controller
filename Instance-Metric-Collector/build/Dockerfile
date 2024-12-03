@@ -5,7 +5,7 @@ FROM ubuntu:18.04
 ENV OPERATOR=/usr/local/bin/instance-metric-collector \
     USER_UID=root \
     USER_NAME=discovery
-COPY _output/bin/instance-metric-collector ${OPERATOR}
+COPY bin/instance-metric-collector ${OPERATOR}
 
 RUN mkdir -p /mnt
 RUN cd /mnt
