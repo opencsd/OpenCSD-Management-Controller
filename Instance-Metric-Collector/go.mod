@@ -3,6 +3,7 @@ module instance-metric-collector
 go 1.22.1
 
 require (
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/influxdata/influxdb v1.11.8
 	k8s.io/apimachinery v0.31.3
 	k8s.io/client-go v0.31.3

@@ -40,8 +40,8 @@ spec:
 #     namespace: management-controller
 # spec:
 #   ports:
-#     - port: 40806
-#       targetPort: 8086
+#     - port: 3306
+#       targetPort: 3306
 #       protocol: TCP
 #   selector:
 #     app: instance-metric-collector

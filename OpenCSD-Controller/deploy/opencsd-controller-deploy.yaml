@@ -33,6 +33,12 @@ spec:
               memory: "1Gi" 
               cpu: "1"
           env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: ketilinux
+            - name: MYSQL_USER
+              value: keti
+            - name: MYSQL_PASSWORD
+              value: ketilinux
             - name: NODE_NAME
               valueFrom:
                 fieldRef:

@@ -26,7 +26,14 @@ var InstanceManager_ *InstanceManager
 var (
 	OPENCSD_CONTROLLER_PORT                = "40801"
 	OPENCSD_INSTANCE_METRIC_COLLECTOR_PORT = "40804"
+	OPENCSD_INSTANCE_METRIC_INFO_DB_PORT   = "40806"
 	STORAGE_API_SERVER_PORT                = "40306"
+)
+
+var (
+	INSTANCE_METRIC_MYSQL_ROOT_PASSWORD = os.Getenv("MYSQL_ROOT_PASSWORD")
+	INSTANCE_METRIC_MYSQL_USER          = os.Getenv("MYSQL_USER")
+	INSTANCE_METRIC_MYSQL_PASSWORD      = os.Getenv("MYSQL_PASSWORD")
 )
 
 const (
@@ -271,7 +278,7 @@ func (instanceManager *InstanceManager) getStorageNodeInfo() {
 			volumeName := "opencsd-ssd-lvm"
 			volumeInfo := &VolumeInfo{
 				VolumeName:  volumeName,
-				VolumePath:  "/mysql_volume",
+				VolumePath:  "/mnt/lvm",
 				NodeName:    "storage-node4",
 				StorageType: SSD,
 				VolumeType:  LVM,

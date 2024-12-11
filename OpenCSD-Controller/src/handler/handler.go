@@ -15,6 +15,26 @@ import (
 	manager "opencsd-controller/src/manager"
 )
 
+func createInstanceInfoDatabase(instanceName string, operationNode string) error {
+	operaionNodeIp := manager.InstanceManager_.OperationLayer[operationNode].IP
+
+	url := "http://" + operaionNodeIp + ":" + manager.OPENCSD_INSTANCE_METRIC_COLLECTOR_PORT + "/create/instance"
+	url += "?instance=" + instanceName
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := ioutil.ReadAll(resp.Body)
+		return fmt.Errorf("Request failed with status code: %d, body: %s", resp.StatusCode, string(body))
+	}
+
+	return nil
+}
+
 func CreateQueryEngineHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("[OpenCSD Controller] CreateQueryEngineHandler")
 
@@ -43,6 +63,14 @@ func CreateQueryEngineHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+
+	if instanceInfo.InstanceType == manager.OPENCSD {
+		err = createInstanceInfoDatabase(instanceInfo.InstanceName, instanceInfo.OperationNode)
+		if err != nil {
+			w.Write([]byte("create instance info database failed\n"))
+			return
+		}
 	}
 
 	w.Write([]byte("[OpenCSD Controller] Create QueryEngine Successfully\n"))
@@ -77,8 +105,6 @@ func CreateStorageEngineHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	fmt.Println("check")
 
 	err = controller.CreateStorageEngineDeployment(instanceInfo)
 	if err != nil {

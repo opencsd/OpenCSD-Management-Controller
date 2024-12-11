@@ -77,6 +77,11 @@ func ConnectInstance(w http.ResponseWriter, r *http.Request) {
 			"instanceType": conn_.InstanceType,
 		}
 
+		err = AddUser(connectionInfo.InstanceName, connectionInfo.UserName, conn_.OperationNode)
+		if err != nil {
+			fmt.Println("failed to add user to instance info db: ", err.Error())
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 	} else {

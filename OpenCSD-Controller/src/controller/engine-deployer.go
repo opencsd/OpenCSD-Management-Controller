@@ -326,6 +326,14 @@ func createQueryEngineDeployment(instanceInfo CreateInstanceInfo) error {
 									Name:  "STORAGE_ENGINE_DNS",
 									Value: storageEngineDns,
 								},
+								{
+									Name: "INSTANCE_NAME",
+									ValueFrom: &corev1.EnvVarSource{
+										FieldRef: &corev1.ObjectFieldSelector{
+											FieldPath: "metadata.namespace",
+										},
+									},
+								},
 							},
 						},
 					},

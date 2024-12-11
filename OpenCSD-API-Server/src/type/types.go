@@ -14,9 +14,10 @@ import (
 var ManagementMaster_ *MasterNode
 
 var (
-	OPENCSD_API_SERVER_PORT = "40800"
-	STORAGE_API_SERVER_PORT = "40306"
-	OPENCSD_CONTROLLER_DNS  = "opencsd-controller-svc.management-controller.svc.cluster.local:40801"
+	OPENCSD_API_SERVER_PORT                = "40800"
+	STORAGE_API_SERVER_PORT                = "40306"
+	OPENCSD_INSTANCE_METRIC_COLLECTOR_PORT = "40804"
+	OPENCSD_CONTROLLER_DNS                 = "opencsd-controller-svc.management-controller.svc.cluster.local:40801"
 )
 
 var (
@@ -24,6 +25,12 @@ var (
 	INSTANCE_METRIC_INFLUXDB_PASSWORD = os.Getenv("INFLUXDB_PASSWORD")
 	INSTANCE_METRIC_INFLUXDB_USER     = os.Getenv("INFLUXDB_USER")
 	INSTANCE_METRIC_INFLUXDB_PORT     = os.Getenv("INFLUXDB_PORT")
+)
+
+var (
+	INSTANCE_METRIC_MYSQL_USER          = "root"
+	INSTANCE_METRIC_MYSQL_ROOT_PASSWORD = os.Getenv("MYSQL_ROOT_PASSWORD")
+	INSTANCE_METRIC_MYSQL_PORT          = os.Getenv("MYSQL_PORT")
 )
 
 const (

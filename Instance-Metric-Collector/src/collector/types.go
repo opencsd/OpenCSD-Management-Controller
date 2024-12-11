@@ -34,6 +34,12 @@ var (
 	INFLUX_DB       = os.Getenv("INFLUXDB_DB")
 )
 
+var (
+	MYSQL_PORT          = os.Getenv("MYSQL_PORT")
+	MYSQL_USERNAME      = "root"
+	MYSQL_ROOT_PASSWORD = os.Getenv("MYSQL_ROOT_PASSWORD")
+)
+
 const (
 	READY    = "READY"
 	NOTREADY = "NOTREADY"

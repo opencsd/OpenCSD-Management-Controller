@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: instance-info-basedb-config
+  namespace: management-controller
+data:
+  base.sql: |
+    CREATE TABLE `workbench_user` (
+        `user_name` VARCHAR(255) NOT NULL,
+        PRIMARY KEY (user_name)
+    );
+
+    CREATE TABLE `query_log` (
+        `query_id` INTEGER NOT NULL,
+        `user_name` VARCHAR(255) NOT NULL,
+        `database_name` VARCHAR(255) NOT NULL,
+        `query_statement` TEXT NOT NULL,
+        `query_result` TEXT DEFAULT NULL,
+        `execution_mode` ENUM('offloading', 'generic') DEFAULT NULL,
+        `query_type` ENUM(
+            'select',
+            'update',
+            'insert',
+            'delete',
+            'dcl',
+            'ddl',
+            'other'
+        ) DEFAULT NULL,
+        `start_time` DATETIME DEFAULT NULL,
+        `end_time` DATETIME DEFAULT NULL,
+        `execution_time` FLOAT DEFAULT NULL,
+        `scanned_row_count` INTEGER DEFAULT NULL,
+        `filtered_row_count` INTEGER DEFAULT NULL,
+        `snippet_count` TINYINT DEFAULT NULL,
+        `table_count` TINYINT DEFAULT NULL,
+        PRIMARY KEY (query_id),
+        FOREIGN KEY (user_name) REFERENCES workbench_user(user_name) ON DELETE CASCADE ON UPDATE CASCADE
+    );
+
+    CREATE TABLE `snippet` (
+        `query_id` INTEGER NOT NULL NOT NULL,
+        `work_id` INTEGER NOT NULL NOT NULL,
+        `snippet_type` TINYINT DEFAULT NULL,
+        `projection` TINYINT DEFAULT NULL,
+        `filter` TINYINT DEFAULT NULL,
+        `group_by` TINYINT DEFAULT NULL,
+        `order_by` TINYINT DEFAULT NULL,
+        `having` TINYINT DEFAULT NULL,
+        `limit_exist` BOOLEAN DEFAULT NULL,
+        PRIMARY KEY (query_id, work_id),
+        FOREIGN KEY (query_id) REFERENCES query_log(query_id) ON DELETE CASCADE ON UPDATE CASCADE
+    );
+
+    CREATE TABLE `validation_option` (
+        `option_id` INTEGER AUTO_INCREMENT NOT NULL,
+        `option_name` VARCHAR(255) NOT NULL,
+        `dbms_type` ENUM(
+            'mysql',
+            'tibero_db',
+            'column_db',
+            'approximate_db'
+        ) DEFAULT 'mysql',
+        `storage_type` ENUM('csd', 'ssd') DEFAULT 'csd',
+        `csd_count` TINYINT DEFAULT 8,
+        `csd_type` ENUM('ngd', 'scaleflux', 'smart_ssd') DEFAULT 'ngd',
+        `block_count` TINYINT DEFAULT 15,
+        `scheduling_algorithm` ENUM('random', 'dcs', 'dsi', 'auto') DEFAULT 'dcs',
+        `using_index` BOOLEAN DEFAULT FALSE,
+        PRIMARY KEY (option_id)
+    );
+
+    CREATE TABLE `validation_log` (
+        `validation_id` INTEGER NOT NULL,
+        `user_name` VARCHAR(255) NOT NULL,
+        `query_statement` TEXT DEFAULT NULL,
+        `timestamp` DATETIME DEFAULT NULL,
+        `option_id` INTEGER DEFAULT NULL,
+        `storage_cpu_usage_predict` FLOAT DEFAULT NULL,
+        `storage_power_usage_predict` FLOAT DEFAULT NULL,
+        `network_usage_predict` FLOAT DEFAULT NULL,
+        `scanned_row_count_predict` INTEGER DEFAULT NULL,
+        `filtered_row_count_predict` INTEGER DEFAULT NULL,
+        `execution_time_predict` FLOAT DEFAULT NULL,
+        `snippet_count` FLOAT DEFAULT NULL,
+        `storage_type` ENUM('csd','ssd') DEFAULT 'csd',
+        PRIMARY KEY (validation_id),
+        FOREIGN KEY (user_name) REFERENCES workbench_user(user_name) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (option_id) REFERENCES validation_option(option_id) ON DELETE CASCADE ON UPDATE CASCADE
+    );
+
+    CREATE TABLE `validation_snippet` (
+        `validation_id` INTEGER NOT NULL,
+        `work_id` INTEGER NOT NULL,
+        `snippet_type` TINYINT DEFAULT NULL,
+        `projection_count` TINYINT DEFAULT NULL,
+        `filter_count` TINYINT DEFAULT NULL,
+        `group_by_count` TINYINT DEFAULT NULL,
+        `order_by_count` TINYINT DEFAULT NULL,
+        `limit_exist` BOOLEAN DEFAULT NULL,
+        PRIMARY KEY (validation_id, work_id),
+        FOREIGN KEY (validation_id) REFERENCES validation_log(validation_id) ON DELETE CASCADE ON UPDATE CASCADE
+    );
+
+    CREATE TABLE `validation_csd_metric` (
+        `validation_id` INTEGER NOT NULL,
+        `storage_id` INTEGER NOT NULL,
+        `csd_cpu_usage_predict` FLOAT DEFAULT NULL,
+        `csd_power_usage_predict` FLOAT DEFAULT NULL,
+        FOREIGN KEY (validation_id) REFERENCES validation_log(validation_id) ON DELETE CASCADE ON UPDATE CASCADE
+    );
+
+    INSERT INTO
+        `validation_option` (option_name, dbms_type, storage_type, csd_count, csd_type, block_count, scheduling_algorithm, using_index)
+    values
+        ("offloading_option", "mysql", "csd", 8, "ngd", 15, "dcs", false);
+
+    INSERT INTO
+        `validation_option` (option_name, dbms_type, storage_type, csd_count, csd_type, block_count, scheduling_algorithm, using_index)
+    values
+        ("non_offloading_option", "mysql", "ssd", null, null, null, null, null);

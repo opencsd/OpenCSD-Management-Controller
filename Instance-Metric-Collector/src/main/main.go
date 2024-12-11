@@ -40,6 +40,7 @@ func main() {
 
 	fmt.Println("[OpenCSD Instance Metric Collector] run on 0.0.0.0:", collector.OPENCSD_INSTANCE_METRIC_COLLECTOR_PORT)
 
+	http.HandleFunc("/create/instance", handler.CreateInstance)
 	http.HandleFunc("/delete/instance", handler.DeleteInstance)
 
 	http.ListenAndServe(":"+collector.OPENCSD_INSTANCE_METRIC_COLLECTOR_PORT, nil)

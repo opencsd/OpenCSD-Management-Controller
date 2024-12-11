@@ -5,6 +5,7 @@ go 1.22.0
 toolchain go1.22.1
 
 require (
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/google/uuid v1.6.0
 	github.com/influxdata/influxdb v1.11.8
 	k8s.io/api v0.31.2
