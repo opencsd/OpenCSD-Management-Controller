@@ -264,7 +264,7 @@ func DeleteGraphDBDeployment(instanceName string) error {
 
 func createQueryEngineDeployment(instanceInfo CreateInstanceInfo) error {
 	namespace := instanceInfo.InstanceName
-	storageEngineDns := "storage-engine-instance-svc." + namespace + ".svc.cluster.local:40200"
+	storageEngineDns := "storage-engine-instance-svc." + namespace + ".svc.cluster.local"
 	nodeName := instanceInfo.OperationNode
 
 	deployment := &appsv1.Deployment{
