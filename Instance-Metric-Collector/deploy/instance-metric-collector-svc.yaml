@@ -17,22 +17,6 @@ spec:
 # apiVersion: v1
 # kind: Service
 # metadata:
-#   name: instance-metric-collector-influxdb-svc
-#   namespace: management-controller
-#   labels:
-#     name: instance-metric-collector
-#     namespace: management-controller
-# spec:
-#   ports:
-#     - port: 8086
-#       targetPort: 8086
-#       protocol: TCP
-#   selector:
-#     app: instance-metric-collector
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
 #   name: instance-metric-collector-mysql-svc
 #   namespace: management-controller
 #   labels:
@@ -42,6 +26,22 @@ spec:
 #   ports:
 #     - port: 3306
 #       targetPort: 3306
+#       protocol: TCP
+#   selector:
+#     app: instance-metric-collector
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: instance-metric-collector-influxdb-svc
+#   namespace: management-controller
+#   labels:
+#     name: instance-metric-collector
+#     namespace: management-controller
+# spec:
+#   ports:
+#     - port: 8086
+#       targetPort: 8086
 #       protocol: TCP
 #   selector:
 #     app: instance-metric-collector

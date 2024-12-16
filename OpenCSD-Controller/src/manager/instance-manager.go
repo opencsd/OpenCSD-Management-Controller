@@ -162,8 +162,10 @@ type VolumeInfo struct {
 	// SizeUsed      float64 `json:"sizeUsed"`
 	// SizeAvailable float64 `json:"sizeAvailable"`
 	// Utilization   float64 `json:"instanceUtilization"`
-	StorageType string `json:"storageType"`
-	VolumeType  string `json:"volumeType"`
+	StorageType  string `json:"storageType"`
+	VolumeType   string `json:"volumeType"`
+	StorageCount int    `json:"storageCount"`
+	StorageName  string `json:"storageName"`
 }
 
 func (instanceManager *InstanceManager) InitInstanceManager() {
@@ -266,22 +268,26 @@ func (instanceManager *InstanceManager) getStorageNodeInfo() {
 		if storageNode.Name == "storage-node1" {
 			volumeName := "opencsd-csd-glusterfs"
 			volumeInfo := &VolumeInfo{
-				VolumeName:  volumeName,
-				VolumePath:  "/mnt/gluster/client",
-				NodeName:    "storage-node1",
-				StorageType: CSD,
-				VolumeType:  GLUSTER,
+				VolumeName:   volumeName,
+				VolumePath:   "/mnt/gluster/client",
+				NodeName:     "storage-node1",
+				StorageType:  CSD,
+				VolumeType:   GLUSTER,
+				StorageCount: 8,
+				StorageName:  "NGD-IN2510-080T4-C",
 			}
 			instanceManager.StorageNodeInfo[storageNode.Name].VolumeInfo[volumeName] = volumeInfo
 			instanceManager.VolumeInfo[volumeName] = volumeInfo
 		} else if storageNode.Name == "storage-node4" {
 			volumeName := "opencsd-ssd-lvm"
 			volumeInfo := &VolumeInfo{
-				VolumeName:  volumeName,
-				VolumePath:  "/mnt/lvm",
-				NodeName:    "storage-node4",
-				StorageType: SSD,
-				VolumeType:  LVM,
+				VolumeName:   volumeName,
+				VolumePath:   "/mnt/lvm",
+				NodeName:     "storage-node4",
+				StorageType:  SSD,
+				VolumeType:   LVM,
+				StorageCount: 8,
+				StorageName:  "Samsung SSD 870 QVO",
 			}
 			instanceManager.StorageNodeInfo[storageNode.Name].VolumeInfo[volumeName] = volumeInfo
 			instanceManager.VolumeInfo[volumeName] = volumeInfo

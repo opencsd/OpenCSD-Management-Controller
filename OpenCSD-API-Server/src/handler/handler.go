@@ -302,13 +302,15 @@ func VolumeAllocateHandler(w http.ResponseWriter, r *http.Request) {
 	var jsonResponse []byte
 
 	type VolumeInfo struct {
-		VolumeName  string  `json:"volumeName"`
-		VolumePath  string  `json:"volumePath"`
-		SizeTotal   float64 `json:"sizeTotal"`
-		SizeUsed    float64 `json:"sizeUsed"`
-		Utilization float64 `json:"instanceUtilization"`
-		StorageType string  `json:"storageType"`
-		VolumeType  string  `json:"volumeType"`
+		VolumeName   string  `json:"volumeName"`
+		VolumePath   string  `json:"volumePath"`
+		SizeTotal    float64 `json:"sizeTotal"`
+		SizeUsed     float64 `json:"sizeUsed"`
+		Utilization  float64 `json:"instanceUtilization"`
+		StorageType  string  `json:"storageType"`
+		VolumeType   string  `json:"volumeType"`
+		StorageCount int     `json:"storageCount"`
+		StorageName  string  `json:"storageName"`
 	}
 
 	response := VolumeInfo{}
@@ -429,8 +431,10 @@ func VolumeInfoHandler(w http.ResponseWriter, r *http.Request) {
 		// SizeTotal   float64 `json:"sizeTotal"`
 		// SizeUsed    float64 `json:"sizeUsed"`
 		// Utilization float64 `json:"instanceUtilization"`
-		StorageType string `json:"storageType"`
-		VolumeType  string `json:"volumeType"`
+		StorageType  string `json:"storageType"`
+		VolumeType   string `json:"volumeType"`
+		StorageCount int    `json:"storageCount"`
+		StorageName  string `json:"storageName"`
 	}
 
 	type VolumeMessage struct {

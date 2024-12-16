@@ -320,8 +320,10 @@ type VolumeInfo struct {
 	// SizeUsed      float64 `json:"sizeUsed"`
 	// SizeAvailable float64 `json:"sizeAvailable"`
 	// Utilization   float64 `json:"instanceUtilization"`
-	StorageType string `json:"storageType"`
-	VolumeType  string `json:"volumeType"`
+	StorageType  string `json:"storageType"`
+	VolumeType   string `json:"volumeType"`
+	StorageCount int    `json:"storageCount"`
+	StorageName  string `json:"storageName"`
 }
 
 type InstanceMetric struct {
