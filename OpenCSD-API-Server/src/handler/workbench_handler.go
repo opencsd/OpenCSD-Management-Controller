@@ -208,9 +208,10 @@ func InstanceMetric(w http.ResponseWriter, r *http.Request) {
 	count := r.URL.Query().Get("count")
 
 	connectionInfo := session.WorkbenchSessionStore[sessionId]
+
 	instanceName := connectionInfo.InstanceName
 	operationNode := connectionInfo.OperationNode
-	operaionNodeIp := types.ManagementMaster_.OperationLayer[operationNode].NodeIP
+	operationNodeIp := types.ManagementMaster_.OperationLayer[operationNode].NodeIP
 
 	if count == "" {
 		count = "1"
@@ -225,7 +226,7 @@ func InstanceMetric(w http.ResponseWriter, r *http.Request) {
 	}
 
 	INFLUX_CLIENT, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr:     "http://" + operaionNodeIp + ":" + types.INSTANCE_METRIC_INFLUXDB_PORT,
+		Addr:     "http://" + operationNodeIp + ":" + types.INSTANCE_METRIC_INFLUXDB_PORT,
 		Username: types.INSTANCE_METRIC_INFLUXDB_USER,
 		Password: types.INSTANCE_METRIC_INFLUXDB_PASSWORD,
 	})

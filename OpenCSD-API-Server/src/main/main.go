@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	handler "opencsd-api-server/src/handler"
+	session "opencsd-api-server/src/session"
 	types "opencsd-api-server/src/type"
 )
 
@@ -28,6 +29,8 @@ func enableCORS(next http.Handler) http.Handler {
 func main() {
 	types.ManagementMaster_ = &types.MasterNode{}
 	types.ManagementMaster_.InitCluster()
+
+	session.CreateDefaultSessionHandler()
 
 	fmt.Println("[OpenCSD API Server] run on 0.0.0.0:", types.OPENCSD_API_SERVER_PORT)
 
@@ -128,10 +131,8 @@ func main() {
 	//11. CSDDiskInfo
 	// mux.HandleFunc("/storagepage/storage/csddiskinfo", handler.DiskInfoHandler)
 	mux.HandleFunc("/dashboard/storage/metric/disk", handler.StorageMetricDiskHandler)
-
 	// mux.HandleFunc("/dashboard/storage/metric/power", handler.StorageMetricPowerHandler)
 
-	//	http.ListenAndServe(":"+types.OPENCSD_API_SERVER_PORT, nil)
 	// CORS 미들웨어와 함께 서버 실행
 	http.ListenAndServe(":"+types.OPENCSD_API_SERVER_PORT, enableCORS(mux))
 }

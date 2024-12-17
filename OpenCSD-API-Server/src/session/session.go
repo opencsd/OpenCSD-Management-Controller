@@ -54,6 +54,24 @@ func CreateSessionHandler(connectionInfo ConnectionInfo, instanceType string, op
 	return sessionId
 }
 
+func CreateDefaultSessionHandler() {
+	connectionInfo := ConnectionInfo{}
+
+	mu.Lock()
+	connectionInfo.InstanceName = "keti-opencsd"
+	connectionInfo.UserName = "keti-admin"
+	connectionInfo.DbName = "tpch_origin"
+	connectionInfo.DbUser = "root"
+	connectionInfo.DbPassword = "keti"
+	connectionInfo.InstanceType = "OPENCSD"
+	connectionInfo.OperationNode = "operation-node1"
+	connectionInfo.StorageNode = "storage-node1"
+	WorkbenchSessionStore["-1"] = connectionInfo
+	mu.Unlock()
+
+	return
+}
+
 func GetConnectionInfo(sessionId string) (ConnectionInfo, bool) {
 	mu.Lock()
 	connectionInfo, exists := WorkbenchSessionStore[sessionId]
