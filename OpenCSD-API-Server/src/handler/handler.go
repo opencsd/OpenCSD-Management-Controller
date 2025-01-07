@@ -278,12 +278,12 @@ func DeleteGraphDB(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("[OpenCSD API Server] Delete OpenCSD Instance Successfully\n"))
 }
 
-func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("[OpenCSD API Server] DeleteNamespace")
+func DeleteInstance(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("[OpenCSD API Server] DeleteInstance")
 
 	instance := r.URL.Query().Get("instance")
 
-	qUrl := "http://" + types.OPENCSD_CONTROLLER_DNS + "/delete/namespace"
+	qUrl := "http://" + types.OPENCSD_CONTROLLER_DNS + "/delete/instance"
 	qUrl += "?instance=" + instance
 
 	resp, err := http.Get(qUrl)
@@ -293,7 +293,7 @@ func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
 	}
 	defer resp.Body.Close()
 
-	w.Write([]byte("[OpenCSD API Server] Delete Namespace Successfully\n"))
+	w.Write([]byte("[OpenCSD API Server] Delete Instance Successfully\n"))
 }
 
 func VolumeAllocateHandler(w http.ResponseWriter, r *http.Request) {
