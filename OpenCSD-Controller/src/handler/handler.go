@@ -226,19 +226,19 @@ func CreateGraphdbHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("[OpenCSD Controller] Create GraphDB Successfully\n"))
 }
 
-func DeleteNamespace(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("[OpenCSD Controller] DeleteNamespace")
+func DeleteInstance(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("[OpenCSD Controller] DeleteInstance")
 
 	targetInstance := r.URL.Query().Get("instance")
-	fmt.Println("Delete Namespace; ", targetInstance)
+	fmt.Println("Delete Instance; ", targetInstance)
 
-	err := controller.DeleteNamespace(targetInstance)
+	err := controller.DeleteInstance(targetInstance)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	w.Write([]byte("[OpenCSD Controller] Delete Namespace Successfully\n"))
+	w.Write([]byte("[OpenCSD Controller] Delete Instance Successfully\n"))
 }
 
 func DeleteQueryEngineHandler(w http.ResponseWriter, r *http.Request) {

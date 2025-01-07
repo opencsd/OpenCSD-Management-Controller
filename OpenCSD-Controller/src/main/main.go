@@ -59,7 +59,7 @@ func main() {
 	mux.HandleFunc("/delete/validator", handler.DeleteValidatorHandler)          // ?instance=
 	mux.HandleFunc("/delete/mysql", handler.DeleteMysqlHandler)                  // ?instance=
 	mux.HandleFunc("/delete/graphdb", handler.DeleteGraphdbHandler)              // ?instance=
-	mux.HandleFunc("/delete/namespace", handler.DeleteNamespace)                 // ?instance=
+	mux.HandleFunc("/delete/instance", handler.DeleteInstance)                   // ?instance=
 
 	http.ListenAndServe(":"+manager.OPENCSD_CONTROLLER_PORT, enableCORS(mux))
 

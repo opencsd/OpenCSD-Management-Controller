@@ -161,7 +161,7 @@ func CreateGraphDBDeployment(instanceInfo CreateInstanceInfo) error {
 	return nil
 }
 
-func DeleteNamespace(instanceName string) error {
+func DeleteInstance(instanceName string) error {
 	err := manager.InstanceManager_.ClusterConfig.Clientset.CoreV1().Namespaces().Delete(context.TODO(), instanceName, metav1.DeleteOptions{})
 	return err
 }
