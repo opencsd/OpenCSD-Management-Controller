@@ -103,30 +103,28 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
           volumeMounts:
-            - name: proc-volume
-              mountPath: /proc
-            - name: net-volume
-              mountPath: /sys/class/net
-            - name: power-volume
-              mountPath: /sys/class/powercap
-            - name: dev-volume
-              mountPath: /dev
+            - name: host-proc
+              mountPath: /host/proc
+              readOnly: true
+            - name: host-sys
+              mountPath: /host/sys
+              readOnly: true
+            - name: host-rootfs
+              mountPath: /rootfs
+              readOnly: true
             - name: instance-info-basedb-config
               mountPath: /etc/config/base.sql
               subPath: base.sql
       volumes:
-        - name: proc-volume
+        - name: host-proc
           hostPath:
             path: /proc
-        - name: net-volume
+        - name: host-sys
           hostPath:
-            path: /sys/class/net
-        - name: power-volume     
+            path: /sys
+        - name: host-rootfs
           hostPath:
-            path: /sys/class/powercap
-        - name: dev-volume
-          hostPath:
-            path: /dev
+            path: /
         - name: influxdb-storage
           hostPath:
             path: /mnt/instance_metric_influxdb

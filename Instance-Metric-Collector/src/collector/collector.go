@@ -2,7 +2,6 @@ package collector
 
 import (
 	"bufio"
-	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -10,7 +9,6 @@ import (
 	"math"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -32,7 +30,7 @@ func (instanceMetricCollector *MetricCollector) RunNodeMetricRoutine() {
 			instanceMetricCollector.updateCpu()
 			instanceMetricCollector.updateMemory()
 			instanceMetricCollector.updateNetwork()
-			instanceMetricCollector.updateStorage()
+			// instanceMetricCollector.updateStorage()
 			instanceMetricCollector.updatePower()
 
 			instanceMetricCollector.saveNodeMetric()
@@ -43,7 +41,7 @@ func (instanceMetricCollector *MetricCollector) RunNodeMetricRoutine() {
 }
 
 func (instanceMetricCollector *MetricCollector) updateCpu() {
-	file, err := os.Open("/proc/stat")
+	file, err := os.Open("/host/proc/stat")
 	if err != nil {
 		fmt.Println("cannot open file: ", err)
 	} else {
@@ -74,7 +72,7 @@ func (instanceMetricCollector *MetricCollector) updateCpu() {
 }
 
 func (instanceMetricCollector *MetricCollector) updateMemory() {
-	file, err := os.Open("/proc/meminfo")
+	file, err := os.Open("/host/proc/meminfo")
 	if err != nil {
 		fmt.Println("cannot open file: ", err)
 	} else {
@@ -88,7 +86,7 @@ func (instanceMetricCollector *MetricCollector) updateMemory() {
 			}
 
 			key := fields[0]
-			value, err := strconv.ParseInt(fields[1], 10, 64)
+			value, err := strconv.ParseFloat(fields[1], 64)
 			if err != nil {
 				fmt.Println("Error parsing value:", err)
 				continue
@@ -107,7 +105,8 @@ func (instanceMetricCollector *MetricCollector) updateMemory() {
 			fmt.Println("Error reading file:", err)
 		}
 
-		instanceMetricCollector.NodeMetric.Memory.Used = instanceMetricCollector.NodeMetric.Memory.Total - instanceMetricCollector.NodeMetric.Memory.Free - instanceMetricCollector.NodeMetric.Memory.Buffers - instanceMetricCollector.NodeMetric.Memory.Cached
+		freeGB := (instanceMetricCollector.NodeMetric.Memory.Free + instanceMetricCollector.NodeMetric.Memory.Buffers + instanceMetricCollector.NodeMetric.Memory.Cached) / 1024.0 / 1024.0
+		instanceMetricCollector.NodeMetric.Memory.Used = instanceMetricCollector.NodeMetric.Memory.Total - freeGB
 		utilization := float64(instanceMetricCollector.NodeMetric.Memory.Used) / float64(instanceMetricCollector.NodeMetric.Memory.Total) * 100.0
 		instanceMetricCollector.NodeMetric.Memory.Utilization, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", utilization), 64)
 	}
@@ -117,10 +116,10 @@ func (instanceMetricCollector *MetricCollector) updateMemory() {
 func (instanceMetricCollector *MetricCollector) updateNetwork() {
 	statisticsFilePath := ""
 
-	if _, err := os.Stat("/sys/class/net/eno1/statistics/"); os.IsNotExist(err) {
-		statisticsFilePath = "/sys/class/net/enp96s0f0/statistics/"
+	if _, err := os.Stat("/host/sys/class/net/eno1/statistics/"); os.IsNotExist(err) {
+		statisticsFilePath = "/host/sys/class/net/enp96s0f0/statistics/"
 	} else {
-		statisticsFilePath = "/sys/class/net/eno1/statistics/"
+		statisticsFilePath = "/host/sys/class/net/eno1/statistics/"
 	}
 
 	rxBytesFieldName := statisticsFilePath + "rx_bytes"
@@ -150,38 +149,38 @@ func (instanceMetricCollector *MetricCollector) updateNetwork() {
 	instanceMetricCollector.NodeMetric.Network.TxByte = currentTxBytes
 }
 
-func (instanceMetricCollector *MetricCollector) updateStorage() {
-	cmd := exec.Command("df", "-k", "--total")
-	output, err := cmd.Output()
-	if err != nil {
-		fmt.Println("Error executing command:", err)
-		return
-	}
+// func (instanceMetricCollector *MetricCollector) updateStorage() {
+// 	cmd := exec.Command("df", "-k", "--total")
+// 	output, err := cmd.Output()
+// 	if err != nil {
+// 		fmt.Println("Error executing command:", err)
+// 		return
+// 	}
 
-	scanner := bufio.NewScanner(bytes.NewReader(output))
-	scanner.Scan()
+// 	scanner := bufio.NewScanner(bytes.NewReader(output))
+// 	scanner.Scan()
 
-	for scanner.Scan() {
-		line := scanner.Text()
+// 	for scanner.Scan() {
+// 		line := scanner.Text()
 
-		if strings.Contains(line, "total") {
-			fields := strings.Fields(line)
-			if len(fields) >= 3 {
-				instanceMetricCollector.NodeMetric.Disk.Used, _ = strconv.ParseInt(fields[2], 10, 64)
-				break
-			}
-		}
-	}
+// 		if strings.Contains(line, "total") {
+// 			fields := strings.Fields(line)
+// 			if len(fields) >= 3 {
+// 				instanceMetricCollector.NodeMetric.Disk.Used, _ = strconv.ParseFloat(fields[2], 64)
+// 				break
+// 			}
+// 		}
+// 	}
 
-	if instanceMetricCollector.NodeMetric.Disk.Total > 0 {
-		utilization := (float64(instanceMetricCollector.NodeMetric.Disk.Used) / float64(instanceMetricCollector.NodeMetric.Disk.Total)) * 100
-		instanceMetricCollector.NodeMetric.Disk.Utilization, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", utilization), 64)
-	}
-}
+// 	if instanceMetricCollector.NodeMetric.Disk.Total > 0 {
+// 		utilization := (float64(instanceMetricCollector.NodeMetric.Disk.Used) / float64(instanceMetricCollector.NodeMetric.Disk.Total)) * 100
+// 		instanceMetricCollector.NodeMetric.Disk.Utilization, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", utilization), 64)
+// 	}
+// }
 
 func (instanceMetricCollector *MetricCollector) updatePower() {
-	energyFieldName1 := "/sys/class/powercap/intel-rapl:0/energy_uj"
-	energyFieldName2 := "/sys/class/powercap/intel-rapl:1/energy_uj"
+	energyFieldName1 := "/host/sys/class/powercap/intel-rapl:0/energy_uj"
+	energyFieldName2 := "/host/sys/class/powercap/intel-rapl:1/energy_uj"
 
 	currentEnergyStr1, err := readStatisticsField(energyFieldName1)
 	if err != nil {
@@ -229,9 +228,9 @@ func (instanceMetricCollector *MetricCollector) saveNodeMetric() {
 		"memory_usage":       instanceMetricCollector.NodeMetric.Memory.Used,
 		"memory_utilization": instanceMetricCollector.NodeMetric.Memory.Utilization,
 
-		"disk_total":       instanceMetricCollector.NodeMetric.Disk.Total,
-		"disk_usage":       instanceMetricCollector.NodeMetric.Disk.Used,
-		"disk_utilization": instanceMetricCollector.NodeMetric.Disk.Utilization,
+		// "disk_total":       instanceMetricCollector.NodeMetric.Disk.Total,
+		// "disk_usage":       instanceMetricCollector.NodeMetric.Disk.Used,
+		// "disk_utilization": instanceMetricCollector.NodeMetric.Disk.Utilization,
 
 		"network_bandwidth": instanceMetricCollector.NodeMetric.Network.Bandwidth,
 		"network_rx_data":   instanceMetricCollector.NodeMetric.Network.RxData,
@@ -279,43 +278,42 @@ func (instanceMetricCollector *MetricCollector) updateInstanceMetric() {
 			if strings.HasPrefix(podName, "storage-engine") {
 				instanceName := pod.PodRef.Namespace
 
-				instanceMetric := &InstanceMetric{
-					InstanceName: instanceName,
-				}
+				instanceMetric := NewInstanceMetric(instanceName)
 
-				if pod.CPU.UsageNanoCores != nil {
-					instanceMetric.CpuUsage = int64(math.Ceil(float64(*pod.CPU.UsageNanoCores) / 1000000))
-				}
+				for _, container := range pod.Containers {
+					if container.CPU.UsageNanoCores != nil {
+						instanceMetric.CpuUsage += int64(math.Ceil(float64(*container.CPU.UsageNanoCores) / 1000000))
+					}
 
-				if pod.Memory.UsageBytes != nil {
-					instanceMetric.MemoryUsage = int64(*pod.Memory.UsageBytes)
+					if container.Memory.WorkingSetBytes != nil {
+						instanceMetric.MemoryUsage += int64(float64(*container.Memory.WorkingSetBytes) / float64(1024*1024))
+					}
+
+					if pod.Network != nil {
+						var RX_Usage uint64 = 0
+						var TX_Usage uint64 = 0
+
+						for _, Interface := range pod.Network.Interfaces {
+							RX_Usage = RX_Usage + *Interface.RxBytes
+							TX_Usage = TX_Usage + *Interface.TxBytes
+						}
+
+						var networkRXBytes resource.Quantity
+						var networkTXBytes resource.Quantity
+
+						networkRXBytes = *uint64Quantity(RX_Usage, 0)
+						networkRXBytes.Format = resource.BinarySI
+
+						networkTXBytes = *uint64Quantity(TX_Usage, 0)
+						networkTXBytes.Format = resource.BinarySI
+
+						instanceMetric.NetworkRxUsage, _ = networkRXBytes.AsInt64()
+						instanceMetric.NetworkTxUsage, _ = networkTXBytes.AsInt64()
+					}
 				}
 
 				if pod.EphemeralStorage.UsedBytes != nil {
 					instanceMetric.StorageUsage = int64(*pod.EphemeralStorage.UsedBytes)
-				}
-
-				if pod.Network != nil {
-					var RX_Usage uint64 = 0
-					var TX_Usage uint64 = 0
-
-					for _, Interface := range pod.Network.Interfaces {
-						RX_Usage = RX_Usage + *Interface.RxBytes
-						TX_Usage = TX_Usage + *Interface.TxBytes
-					}
-
-					var networkRXBytes resource.Quantity
-					var networkTXBytes resource.Quantity
-
-					networkRXBytes = *uint64Quantity(RX_Usage, 0)
-					networkRXBytes.Format = resource.BinarySI
-
-					networkTXBytes = *uint64Quantity(TX_Usage, 0)
-					networkTXBytes.Format = resource.BinarySI
-
-					instanceMetric.NetworkRxUsage, _ = networkRXBytes.AsInt64()
-					instanceMetric.NetworkTxUsage, _ = networkTXBytes.AsInt64()
-					instanceMetric.NetworkTxUsage, _ = networkTXBytes.AsInt64()
 				}
 
 				instanceMetricCollector.InstanceMetric[instanceName] = instanceMetric

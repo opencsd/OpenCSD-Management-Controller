@@ -2,7 +2,6 @@ package collector
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"net"
 	"net/http"
@@ -118,19 +117,19 @@ func NewConfig() *Config {
 }
 
 type NodeMetric struct {
-	mutex   sync.Mutex
-	Cpu     Cpu
-	Memory  Memory
-	Disk    Disk
+	mutex  sync.Mutex
+	Cpu    Cpu
+	Memory Memory
+	// Disk    Disk
 	Network Network
 	Power   Power
 }
 
 func NewNodeMetric() *NodeMetric {
 	return &NodeMetric{
-		Cpu:     Cpu{},
-		Memory:  Memory{},
-		Disk:    Disk{},
+		Cpu:    Cpu{},
+		Memory: Memory{},
+		// Disk:    Disk{},
 		Network: Network{},
 		Power:   Power{},
 	}
@@ -143,6 +142,17 @@ type InstanceMetric struct {
 	StorageUsage   int64  `json:"storageUsage"`
 	NetworkRxUsage int64  `json:"networkRxUsage"`
 	NetworkTxUsage int64  `json:"networkTxUsage"`
+}
+
+func NewInstanceMetric(instanceName string) *InstanceMetric {
+	return &InstanceMetric{
+		InstanceName:   instanceName,
+		CpuUsage:       0,
+		MemoryUsage:    0,
+		StorageUsage:   0,
+		NetworkRxUsage: 0,
+		NetworkTxUsage: 0,
+	}
 }
 
 type Cpu struct {
@@ -160,18 +170,18 @@ type StJiffies struct {
 }
 
 type Memory struct {
-	Total       int64
-	Used        int64
+	Total       float64
+	Used        float64
 	Utilization float64
-	Free        int64
-	Buffers     int64
-	Cached      int64
+	Free        float64
+	Buffers     float64
+	Cached      float64
 }
 
 type Disk struct {
 	Name        string
-	Total       int64
-	Used        int64
+	Total       float64
+	Used        float64
 	Utilization float64
 }
 
@@ -194,23 +204,16 @@ type Summary struct {
 }
 
 type PodStats struct {
-	PodRef           PodReference  `json:"podRef"`
-	CPU              *CPUStats     `json:"cpu,omitempty"`
-	Memory           *MemoryStats  `json:"memory,omitempty"`
-	Network          *NetworkStats `json:"network,omitempty"`
-	EphemeralStorage *FsStats      `json:"ephemeral-storage,omitempty"`
+	PodRef           PodReference     `json:"podRef"`
+	Containers       []ContainerStats `json:"containers"`
+	Network          *NetworkStats    `json:"network,omitempty"`
+	EphemeralStorage *FsStats         `json:"ephemeral-storage,omitempty"`
 }
 
-type NetworkStats struct {
-	Interfaces []InterfaceStats `json:"interfaces,omitempty"`
-}
-
-type InterfaceStats struct {
-	Name     string  `json:"name"`
-	RxBytes  *uint64 `json:"rxBytes,omitempty"`
-	RxErrors *uint64 `json:"rxErrors,omitempty"`
-	TxBytes  *uint64 `json:"txBytes,omitempty"`
-	TxErrors *uint64 `json:"txErrors,omitempty"`
+type ContainerStats struct {
+	Name   string       `json:"name"`
+	CPU    *CPUStats    `json:"cpu,omitempty"`
+	Memory *MemoryStats `json:"memory,omitempty"`
 }
 
 type PodReference struct {
@@ -234,6 +237,18 @@ type MemoryStats struct {
 	MajorPageFaults *uint64 `json:"majorPageFaults,omitempty"`
 }
 
+type NetworkStats struct {
+	Interfaces []InterfaceStats `json:"interfaces,omitempty"`
+}
+
+type InterfaceStats struct {
+	Name     string  `json:"name"`
+	RxBytes  *uint64 `json:"rxBytes,omitempty"`
+	RxErrors *uint64 `json:"rxErrors,omitempty"`
+	TxBytes  *uint64 `json:"txBytes,omitempty"`
+	TxErrors *uint64 `json:"txErrors,omitempty"`
+}
+
 type FsStats struct {
 	Time           v1.Time `json:"time"`
 	AvailableBytes *uint64 `json:"availableBytes,omitempty"`
@@ -249,7 +264,7 @@ func (nodeMetric *NodeMetric) InitNodeMetric() {
 	defer nodeMetric.mutex.Unlock()
 
 	{
-		cmd := exec.Command("grep", "-c", "processor", "/proc/cpuinfo")
+		cmd := exec.Command("grep", "-c", "processor", "/host/proc/cpuinfo")
 		output, err := cmd.Output()
 		if err != nil {
 			fmt.Println("Error: Command execution failed:", err)
@@ -265,7 +280,7 @@ func (nodeMetric *NodeMetric) InitNodeMetric() {
 	}
 
 	{
-		file, err := os.Open("/proc/stat")
+		file, err := os.Open("/host/proc/stat")
 		if err != nil {
 			fmt.Println("cannot open file: ", err)
 		} else {
@@ -279,7 +294,7 @@ func (nodeMetric *NodeMetric) InitNodeMetric() {
 	}
 
 	{
-		file, err := os.Open("/proc/meminfo")
+		file, err := os.Open("/host/proc/meminfo")
 		if err != nil {
 			fmt.Println("cannot open file: ", err)
 		} else {
@@ -290,10 +305,11 @@ func (nodeMetric *NodeMetric) InitNodeMetric() {
 				if strings.HasPrefix(line, "MemTotal:") {
 					fields := strings.Fields(line)
 					if len(fields) >= 2 {
-						nodeMetric.Memory.Total, err = strconv.ParseInt(fields[1], 10, 64)
+						memTotalKB, err := strconv.ParseFloat(fields[1], 64)
 						if err != nil {
 							fmt.Println("Error parsing memory value:", err)
 						}
+						nodeMetric.Memory.Total = memTotalKB / (1024 * 1024)
 					}
 					break
 				}
@@ -308,10 +324,10 @@ func (nodeMetric *NodeMetric) InitNodeMetric() {
 	{
 		statisticsFilePath := ""
 
-		if _, err := os.Stat("/sys/class/net/eno1/statistics/"); os.IsNotExist(err) {
-			statisticsFilePath = "/sys/class/net/enp96s0f0/statistics/"
+		if _, err := os.Stat("/host/sys/class/net/eno1/statistics/"); os.IsNotExist(err) {
+			statisticsFilePath = "/host/sys/class/net/enp96s0f0/statistics/"
 		} else {
-			statisticsFilePath = "/sys/class/net/eno1/statistics/"
+			statisticsFilePath = "/host/sys/class/net/eno1/statistics/"
 		}
 
 		rxBytesFieldName := statisticsFilePath + "rx_bytes"
@@ -333,29 +349,29 @@ func (nodeMetric *NodeMetric) InitNodeMetric() {
 		nodeMetric.Network.TxByte, _ = strconv.ParseInt(txBytes, 10, 64)
 	}
 
-	{
-		cmd := exec.Command("df", "-k", "--total")
-		output, err := cmd.Output()
-		if err != nil {
-			fmt.Println("Error executing command:", err)
-			return
-		}
+	// {
+	// 	cmd := exec.Command("df", "-k", "--total")
+	// 	output, err := cmd.Output()
+	// 	if err != nil {
+	// 		fmt.Println("Error executing command:", err)
+	// 		return
+	// 	}
 
-		scanner := bufio.NewScanner(bytes.NewReader(output))
-		scanner.Scan()
+	// 	scanner := bufio.NewScanner(bytes.NewReader(output))
+	// 	scanner.Scan()
 
-		for scanner.Scan() {
-			line := scanner.Text()
+	// 	for scanner.Scan() {
+	// 		line := scanner.Text()
 
-			if strings.Contains(line, "total") {
-				fields := strings.Fields(line)
-				if len(fields) >= 3 {
-					nodeMetric.Disk.Total, _ = strconv.ParseInt(fields[1], 10, 64)
-					break
-				}
-			}
-		}
-	}
+	// 		if strings.Contains(line, "total") {
+	// 			fields := strings.Fields(line)
+	// 			if len(fields) >= 3 {
+	// 				nodeMetric.Disk.Total, _ = strconv.ParseFloat(fields[1], 64)
+	// 				break
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
 
 func readStatisticsField(fieldName string) (string, error) {
