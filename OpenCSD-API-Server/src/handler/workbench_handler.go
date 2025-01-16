@@ -366,7 +366,8 @@ func QueryEnvInfo(w http.ResponseWriter, r *http.Request) {
 	connectionInfo := session.WorkbenchSessionStore[sessionId]
 	instanceName := connectionInfo.InstanceName
 
-	url := "http://query-engine-instance-svc." + instanceName + ".svc.cluster.local:40100/env/info"
+	//get
+	url := "http://query-engine-instance-svc." + instanceName + ".svc.cluster.local:40100/metadata/environment"
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -395,7 +396,8 @@ func QueryEnvEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := "http://query-engine-instance-svc." + instanceName + ".svc.cluster.local:40100/env/edit"
+	//post
+	url := "http://query-engine-instance-svc." + instanceName + ".svc.cluster.local:40100/metadata/environment"
 
 	queryEngineRequest, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
 	if err != nil {

@@ -65,6 +65,28 @@ func CreateOpenCSD(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	vUrl := "http://" + types.OPENCSD_CONTROLLER_DNS + "/create/validator"
+
+	validatorRequest, err := http.NewRequest("POST", vUrl, bytes.NewBuffer(instanceRequest))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	validatorRequest.Header.Set("Content-Type", "application/json")
+
+	resp, err = client.Do(validatorRequest)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("[OpenCSD API Server] Create OpenCSD Successfully\n"))
 }

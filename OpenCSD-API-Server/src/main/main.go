@@ -36,27 +36,32 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/instance/create/opencsd", handler.CreateOpenCSD) //post, instanceCreationInfo
-	mux.HandleFunc("/instance/create/mysql", handler.CreateMySQL)     //post, instanceCreationInfo
-	mux.HandleFunc("/instance/create/graphdb", handler.CreateGraphDB) //post, instanceCreationInfo
-
+	//instance
+	mux.HandleFunc("/instance/create/opencsd", handler.CreateOpenCSD)   //post, instanceCreationInfo
+	mux.HandleFunc("/instance/create/mysql", handler.CreateMySQL)       //post, instanceCreationInfo
+	mux.HandleFunc("/instance/create/graphdb", handler.CreateGraphDB)   //post, instanceCreationInfo
 	mux.HandleFunc("/instance/delete/opencsd", handler.DeleteOpenCSD)   //?instance=
 	mux.HandleFunc("/instance/delete/mysql", handler.DeleteMySQL)       //?instance=
 	mux.HandleFunc("/instance/delete/graphdb", handler.DeleteGraphDB)   //?instance=
 	mux.HandleFunc("/instance/delete/instance", handler.DeleteInstance) //?instance=
 
+	//volume
 	mux.HandleFunc("/volume/allocate", handler.VolumeAllocateHandler)     //post, volumeCreationInfo
 	mux.HandleFunc("/volume/deallocate", handler.VolumeDeAllocateHandler) //?volume=
 
+	//cluster
 	mux.HandleFunc("/cluster/node-list", handler.ClusterNodeListHandler)  // ?layer=
 	mux.HandleFunc("/cluster/node/volume", handler.VolumeInfoHandler)     // ?node=
 	mux.HandleFunc("/cluster/node/instance", handler.InstanceInfoHandler) // ?node=&instance=
-
 	mux.HandleFunc("/cluster/storage-node-list", handler.ClusterStorageNodeListHandler)
-	mux.HandleFunc("/node/info/storage-list", handler.NodeStorageListHandler)      // ?node=&count=
-	mux.HandleFunc("/node/info/storage", handler.NodeStorageInfoHandler)           // ?node=&count=
-	mux.HandleFunc("/node/metric/disk", handler.NodeDiskInfoHandler)               // ?node=&count=
-	mux.HandleFunc("/node/metric/all", handler.NodeMetricInfoHandler)              // ?node=&count=
+
+	//node
+	mux.HandleFunc("/node/info/storage-list", handler.NodeStorageListHandler) // ?node=&count=
+	mux.HandleFunc("/node/info/storage", handler.NodeStorageInfoHandler)      // ?node=&count=
+	mux.HandleFunc("/node/metric/disk", handler.NodeDiskInfoHandler)          // ?node=&count=
+	mux.HandleFunc("/node/metric/all", handler.NodeMetricInfoHandler)         // ?node=&count=
+
+	//storage
 	mux.HandleFunc("/storage/info", handler.NodeStorageInfoHandler)                // ?node=&storage=&count=
 	mux.HandleFunc("/storage/metric/all", handler.StorageMetricInfoHandler)        // ?node=&storage=&count=
 	mux.HandleFunc("/storage/metric/cpu", handler.StorageMetricCpuHandler)         // ?node=&storage=&count=
@@ -64,6 +69,7 @@ func main() {
 	mux.HandleFunc("/storage/metric/network", handler.StorageMetricNetworkHandler) // ?node=&storage=&count=
 	mux.HandleFunc("/storage/metric/disk", handler.StorageMetricDiskHandler)       // ?node=&storage=&count=
 
+	//workbench
 	mux.HandleFunc("/workbench/main/connection", handler.ConnectInstance)                     //post, ConnectionInfo
 	mux.HandleFunc("/workbench/monitoring/connection-info", handler.MonitoringConnectionInfo) //get, ?session-id=
 	mux.HandleFunc("/workbench/monitoring/metric/node", handler.NodeMetric)                   //get, ?session-id=&count=
@@ -74,12 +80,7 @@ func main() {
 	// mux.HandleFunc("/workbench/query/environment", handler.QueryEnvInfo)                      //get, post, ?session-id=
 	// mux.HandleFunc("/workbench/query/metric", handler.NodeMetricMin)                          //get, ?session-id=
 	// mux.HandleFunc("/workbench/query/log/delete", handler.DeleteQueryLog)                     //get, ?session-id=
-	// mux.HandleFunc("/workbench/query/log/get", handler.GetQueryLog)                           //ge5trt, ?session-id=?log-id=
-	// mux.HandleFunc("/workbench/validator/run", handler.ExecuteQuery)                          //get, ?session-id=
-	// mux.HandleFunc("/workbench/validator/schema-info", handler.GetSchemaInfo)                 //get, ?session-id=
-	// mux.HandleFunc("/workbench/validator/metric", handler.NodeMetricMin)                      //get, ?session-id=&count=&start-time=&end-time=
-	// mux.HandleFunc("/workbench/validator/environment-info", handler.QueryEnvInfo)             //get, ?session-id=
-	// mux.HandleFunc("/workbench/validator/log", handler.QueryEnvInfo)                          //get, ?session-id=?log-id=
+	// mux.HandleFunc("/workbench/query/log/get", handler.GetQueryLog)                           //get, ?session-id=?log-id=
 
 	//gluesys
 	mux.HandleFunc("/dashboard/cluster/storage-node-list", handler.ClusterStorageNodeListHandler) //1. ClusterNodeList
