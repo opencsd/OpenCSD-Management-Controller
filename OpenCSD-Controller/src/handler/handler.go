@@ -94,12 +94,6 @@ func CreateStorageEngineHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = controller.CreateNamespace(instanceInfo.InstanceName)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	err = controller.CreateVolumeDirectory(instanceInfo.VolumeName, instanceInfo.InstanceName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -116,7 +110,7 @@ func CreateStorageEngineHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateValidatorHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("[OpenCSD Controller] CreateStorageEngineHandler")
+	fmt.Println("[OpenCSD Controller] CreateValidatorHandler")
 
 	instanceInfo := controller.CreateInstanceInfo{}
 	requestBody, err := ioutil.ReadAll(r.Body)
@@ -133,16 +127,12 @@ func CreateValidatorHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = controller.CreateNamespace(instanceInfo.InstanceName)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = controller.CreateValidatorDeployment(instanceInfo)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusConflict)
-		return
+	if instanceInfo.Validator {
+		err = controller.CreateValidatorDeployment(instanceInfo)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusConflict)
+			return
+		}
 	}
 
 	w.Write([]byte("[OpenCSD Controller] Create Validator Successfully\n"))

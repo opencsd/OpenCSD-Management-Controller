@@ -406,7 +406,6 @@ func (instanceManager *InstanceManager) realAddInstance(pod *v1.Pod) {
 	instanceManager.mu.Lock()
 	defer instanceManager.mu.Unlock()
 
-	fmt.Println("add instance: ", pod.Name, pod.Namespace)
 	instanceName := pod.Namespace
 	nodeName := pod.Spec.NodeName
 
@@ -416,8 +415,6 @@ func (instanceManager *InstanceManager) realAddInstance(pod *v1.Pod) {
 			instance.QueryEngineStatus = parsingStatus(string(pod.Status.Phase))
 		} else { // "storage-engine-instance" or "mysql" or "graphdb"
 			instanceType, volumeName := instanceManager.getStorageEngineInfo(instanceName, pod)
-
-			fmt.Println("volume name : ", volumeName)
 
 			instance.InstanceType = instanceType
 			instance.StorageNode = instanceManager.VolumeInfo[volumeName].NodeName
@@ -440,8 +437,6 @@ func (instanceManager *InstanceManager) realAddInstance(pod *v1.Pod) {
 		} else { // "storage-engine-instance" or "mysql" or "graphdb"
 			instanceType, volumeName := instanceManager.getStorageEngineInfo(instanceName, pod)
 
-			fmt.Println("volume name : ", volumeName)
-
 			newInstance := &Instance{
 				InstanceName:        instanceName,
 				InstanceType:        instanceType,
@@ -456,8 +451,6 @@ func (instanceManager *InstanceManager) realAddInstance(pod *v1.Pod) {
 			instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName] = newInstance
 		}
 	}
-
-	fmt.Printf("%v\n", instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName])
 }
 
 func (instanceManager *InstanceManager) updateInstance(oldObj interface{}, newObj interface{}) {

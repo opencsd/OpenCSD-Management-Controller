@@ -23,6 +23,7 @@ type CreateInstanceInfo struct {
 	OperationNode string `json:"operationNode"`
 	StorageNode   string `json:"storageNode"`
 	VolumeName    string `json:"volumeName"`
+	Validator     bool   `json:"validator"`
 }
 
 func getRandomNodeport() int {
@@ -84,6 +85,14 @@ func CreateStorageEngineDeployment(instanceInfo CreateInstanceInfo) error {
 	fmt.Println("Service created successfully")
 
 	err = createClusterIpService(instanceInfo, "storage-engine-dbms")
+	if err != nil {
+		fmt.Printf("Error creating service: %v\n", err)
+		return err
+	}
+	fmt.Println("Service created successfully")
+
+	nodePort := getRandomNodeport()
+	err = createNodePortService(instanceInfo, nodePort, "storage-engine")
 	if err != nil {
 		fmt.Printf("Error creating service: %v\n", err)
 		return err
@@ -848,6 +857,17 @@ func createNodePortService(instanceInfo CreateInstanceInfo, nodePort int, kind s
 				Protocol:   corev1.ProtocolTCP,
 			},
 		}
+	} else if kind == "storage-engine" {
+		label = "storage-engine-instance"
+		name = "buffer-manager-svc"
+		ports = []corev1.ServicePort{
+			{
+				Port:       40204,
+				TargetPort: intstr.FromInt(40204),
+				NodePort:   int32(nodePort),
+				Protocol:   corev1.ProtocolTCP,
+			},
+		}
 	} else {
 		return fmt.Errorf("undefined dbms type")
 	}
@@ -878,12 +898,11 @@ func createClusterIpService(instanceInfo CreateInstanceInfo, kind string) error 
 
 	if kind == "storage-engine" {
 		label = "storage-engine-instance"
-		name = "storage-engine-instance-svc"
+		name = "storage-engine-interface-svc"
 		ports = []corev1.ServicePort{
 			{
-				Name:       "main",
-				Port:       3306,
-				TargetPort: intstr.FromInt(3306),
+				Port:       40200,
+				TargetPort: intstr.FromInt(40200),
 				Protocol:   corev1.ProtocolTCP,
 			},
 		}
@@ -932,6 +951,12 @@ func createClusterIpService(instanceInfo CreateInstanceInfo, kind string) error 
 				Name:       "main",
 				Port:       40000,
 				TargetPort: intstr.FromInt(40000),
+				Protocol:   corev1.ProtocolTCP,
+			},
+			{
+				Name:       "qemu",
+				Port:       40001,
+				TargetPort: intstr.FromInt(40001),
 				Protocol:   corev1.ProtocolTCP,
 			},
 		}
