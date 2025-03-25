@@ -428,28 +428,54 @@ func AccessInstanceHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.Unmarshal(requestBody, &connectionInfo)
-	if err != nil {
+	if err = json.Unmarshal(requestBody, &connectionInfo); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println(string(requestBody))
+	if _, ok := manager.InstanceManager_.InstanceInfo[connectionInfo.InstanceName]; !ok {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	instanceType := manager.InstanceManager_.InstanceInfo[connectionInfo.InstanceName].InstanceType
 	operationNode := manager.InstanceManager_.InstanceInfo[connectionInfo.InstanceName].OperationNode
 	storageNode := manager.InstanceManager_.InstanceInfo[connectionInfo.InstanceName].StorageNode
+	storageEngineUid := manager.InstanceManager_.InstanceInfo[connectionInfo.InstanceName].StorageEngineUid
 	response, dbHost := "", ""
 
 	if instanceType == manager.GRAPHDB {
 		dbHost = "graphdb-dbms-svc." + connectionInfo.InstanceName + ".svc.cluster.local"
 		response = fmt.Sprintf(`{"status": "false", "instanceType": "%s"}`, instanceType)
-	} else {
-		if instanceType == manager.MYSQL {
-			dbHost = "mysql-dbms-svc." + connectionInfo.InstanceName + ".svc.cluster.local"
-		} else { // OPENCSD
-			dbHost = "storage-engine-dbms-svc." + connectionInfo.InstanceName + ".svc.cluster.local"
+	} else if instanceType == manager.MYSQL {
+		dbHost = "mysql-dbms-svc." + connectionInfo.InstanceName + ".svc.cluster.local"
+
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s",
+			"root",                    // 사용자 이름
+			connectionInfo.DbPassword, // 비밀번호
+			dbHost,                    // 데이터베이스 호스트
+			connectionInfo.DbName,     // 데이터베이스 이름
+		)
+
+		fmt.Println("dsn : ", dsn)
+
+		db, err := sql.Open("mysql", dsn)
+		if err != nil {
+			fmt.Printf("Error opening database connection: %v\n", err)
+			response = fmt.Sprintf(`{"status": "false", "instanceType": "%s"}`, instanceType)
 		}
+		defer db.Close()
+
+		err = db.Ping()
+		if err != nil {
+			fmt.Printf("Error connecting to database: %v\n", err)
+			response = fmt.Sprintf(`{"status": "false", "instanceType": "%s"}`, instanceType)
+		} else {
+			response = fmt.Sprintf(`{"status": "true", "instanceType": "%s", "operationNode": "%s", "storageNode": "%s", "storageEngineUid": "%s"}`, instanceType, operationNode, storageNode, storageEngineUid)
+		}
+	} else { // OPENCSD
+		dbHost = "storage-engine-dbms-svc." + connectionInfo.InstanceName + ".svc.cluster.local"
+
 		dsn := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s",
 			"root",                    // 사용자 이름
 			connectionInfo.DbPassword, // 비밀번호
@@ -469,7 +495,7 @@ func AccessInstanceHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("Error connecting to database: %v\n", err)
 			response = fmt.Sprintf(`{"status": "false", "instanceType": "%s"}`, instanceType)
 		} else {
-			response = fmt.Sprintf(`{"status": "true", "instanceType": "%s", "operationNode": "%s", "storageNode": "%s"}`, instanceType, operationNode, storageNode)
+			response = fmt.Sprintf(`{"status": "true", "instanceType": "%s", "operationNode": "%s", "storageNode": "%s", "storageEngineUid": "%s"}`, instanceType, operationNode, storageNode, storageEngineUid)
 		}
 	}
 

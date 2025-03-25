@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math"
@@ -14,6 +15,10 @@ import (
 	"strings"
 
 	client "github.com/influxdata/influxdb/client/v2"
+)
+
+var (
+	metricCount = 15
 )
 
 func ConnectInstance(w http.ResponseWriter, r *http.Request) {
@@ -55,10 +60,11 @@ func ConnectInstance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type conn struct {
-		Status        string `json:"status"`
-		InstanceType  string `json:"instanceType"`
-		OperationNode string `json:"operationNode"`
-		StorageNode   string `json:"storageNode"`
+		Status           string `json:"status"`
+		InstanceType     string `json:"instanceType"`
+		OperationNode    string `json:"operationNode"`
+		StorageNode      string `json:"storageNode"`
+		StorageEngineUid string `json:"storageEngineUid"`
 	}
 
 	var conn_ conn
@@ -70,7 +76,7 @@ func ConnectInstance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if conn_.Status == "true" {
-		sessionId := session.CreateSessionHandler(connectionInfo, conn_.InstanceType, conn_.OperationNode, conn_.StorageNode)
+		sessionId := session.CreateSessionHandler(connectionInfo, conn_.InstanceType, conn_.OperationNode, conn_.StorageNode, conn_.StorageEngineUid)
 
 		response := map[string]string{
 			"sessionId":    sessionId,
@@ -155,7 +161,7 @@ func NodeMetric(w http.ResponseWriter, r *http.Request) {
 	}
 
 	q := client.Query{
-		Command:  "SELECT * FROM node_metric ORDER BY DESC LIMIT " + count + " TZ('Asia/Seoul')",
+		Command:  "SELECT * FROM node_metric ORDER BY time DESC LIMIT " + count + " TZ('Asia/Seoul')",
 		Database: types.INSTANCE_METRIC_INFLUXDB_DB,
 	}
 
@@ -169,25 +175,24 @@ func NodeMetric(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if result, err := INFLUX_CLIENT.Query(q); err == nil && result.Error() == nil {
+
 		for _, row := range result.Results[0].Series {
 			for _, value := range row.Values {
 				nodeMetric := types.NodeMetric{}
 
 				nodeMetric.Time = fmt.Sprintf("%v", value[0])
-				nodeMetric.CpuTotal = parseFloat(value[1])
-				nodeMetric.CpuUsed = parseFloat(value[2])
-				nodeMetric.CpuUtilization = parseFloat(value[3])
-				nodeMetric.DiskTotal = parseFloat(value[4])
-				nodeMetric.DiskUsed = parseFloat(value[5])
-				nodeMetric.DiskUtilization = parseFloat(value[6])
-				nodeMetric.MemoryTotal = parseFloat(value[7])
-				nodeMetric.MemoryUsed = parseFloat(value[8])
-				nodeMetric.MemoryUtilization = parseFloat(value[9])
-				nodeMetric.NetworkBandwidth = parseFloat(value[10])
-				nodeMetric.NetworkRxData = parseFloat(value[11])
-				nodeMetric.NetworkTxData = parseFloat(value[12])
-				nodeMetric.NodeName = fmt.Sprintf("%v", value[13])
-				nodeMetric.PowerUsed = parseFloat(value[14])
+				// nodeMetric.CpuTick = parseFloat(value[1])
+				nodeMetric.CpuTotal = parseFloat(value[2])
+				nodeMetric.CpuUsed = parseFloat(value[3])
+				nodeMetric.CpuUtilization = parseFloat(value[4])
+				nodeMetric.MemoryTotal = parseFloat(value[5])
+				nodeMetric.MemoryUsed = parseFloat(value[6])
+				nodeMetric.MemoryUtilization = parseFloat(value[7])
+				nodeMetric.NetworkBandwidth = parseFloat(value[8])
+				nodeMetric.NetworkRxData = parseFloat(value[9])
+				nodeMetric.NetworkTxData = parseFloat(value[10])
+				nodeMetric.NodeName = fmt.Sprintf("%v", value[11])
+				nodeMetric.PowerUsed = parseFloat(value[12])
 
 				response = append(response, nodeMetric)
 			}
@@ -221,7 +226,7 @@ func InstanceMetric(w http.ResponseWriter, r *http.Request) {
 	measurementName := "instance_metric_" + converted
 
 	q := client.Query{
-		Command:  "SELECT * FROM " + measurementName + " ORDER BY DESC LIMIT " + count + " TZ('Asia/Seoul')",
+		Command:  "SELECT * FROM " + measurementName + " ORDER BY time DESC LIMIT " + count + " TZ('Asia/Seoul')",
 		Database: types.INSTANCE_METRIC_INFLUXDB_DB,
 	}
 
@@ -442,13 +447,13 @@ func NodeMetricMin(w http.ResponseWriter, r *http.Request) {
 	query := ""
 	if startTime == "" || endTime == "" {
 		query = fmt.Sprintf(
-			"SELECT cpu_usage, power_usage FROM node_metric ORDER BY time DESC LIMIT %s TZ('Asia/Seoul')",
+			"SELECT cpu_tick, cpu_usage, power_usage FROM node_metric ORDER BY time DESC LIMIT %s TZ('Asia/Seoul')",
 			count,
 		)
 	} else {
 		query = fmt.Sprintf(
-			"SELECT cpu_usage, power_usage FROM node_metric WHERE time > '%s' - 5s AND time < '%s' + 5s ORDER BY time DESC LIMIT %s TZ('Asia/Seoul')",
-			startTime, endTime, count,
+			"SELECT cpu_tick, cpu_usage, power_usage FROM node_metric WHERE time >= '%s' - 5s AND time <= '%s' + 5s ORDER BY time DESC TZ('Asia/Seoul')",
+			startTime, endTime,
 		)
 	}
 
@@ -464,30 +469,51 @@ func NodeMetricMin(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Fatal(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	if result, err := INFLUX_CLIENT.Query(q); err == nil && result.Error() == nil {
-		for _, row := range result.Results[0].Series {
-			for _, value := range row.Values {
+		rowCount := len(result.Results[0].Series[0].Values)
+
+		if rowCount <= metricCount {
+			for _, row := range result.Results[0].Series {
+				for _, value := range row.Values {
+					nodeMetric := types.NodeMetric{}
+
+					nodeMetric.Time = fmt.Sprintf("%v", value[0])
+					nodeMetric.CpuTick = parseInt(value[1])
+					nodeMetric.CpuUsed = parseFloat(value[2])
+					nodeMetric.PowerUsed = parseFloat(value[3])
+
+					response = append(response, nodeMetric)
+				}
+			}
+		} else {
+			interval := rowCount / metricCount
+			remainder := rowCount % metricCount
+
+			weightArray := make([]int, metricCount)
+
+			for i := 0; i < metricCount; i++ {
+				weightArray[i] = interval
+			}
+			for i := 0; i < remainder; i++ {
+				weightArray[i]++
+			}
+
+			index := 0
+			for _, weight := range weightArray {
+				row := result.Results[0].Series[0].Values[index]
 				nodeMetric := types.NodeMetric{}
 
-				nodeMetric.Time = fmt.Sprintf("%v", value[0])
-				nodeMetric.CpuTotal = parseFloat(value[1])
-				nodeMetric.CpuUsed = parseFloat(value[2])
-				nodeMetric.CpuUtilization = parseFloat(value[3])
-				nodeMetric.DiskTotal = parseFloat(value[4])
-				nodeMetric.DiskUsed = parseFloat(value[5])
-				nodeMetric.DiskUtilization = parseFloat(value[6])
-				nodeMetric.MemoryTotal = parseFloat(value[7])
-				nodeMetric.MemoryUsed = parseFloat(value[8])
-				nodeMetric.MemoryUtilization = parseFloat(value[9])
-				nodeMetric.NetworkBandwidth = parseFloat(value[10])
-				nodeMetric.NetworkRxData = parseFloat(value[11])
-				nodeMetric.NetworkTxData = parseFloat(value[12])
-				nodeMetric.NodeName = fmt.Sprintf("%v", value[13])
-				nodeMetric.PowerUsed = parseFloat(value[14])
+				nodeMetric.Time = fmt.Sprintf("%v", row[0])
+				nodeMetric.CpuUsed = parseFloat(row[2])
+				nodeMetric.PowerUsed = parseFloat(row[3])
 
 				response = append(response, nodeMetric)
+
+				index += weight
 			}
 		}
 	} else {
@@ -498,12 +524,146 @@ func NodeMetricMin(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(string(jsonResponse) + "\n"))
 }
 
+func RunQuery(w http.ResponseWriter, r *http.Request) {
+	sessionId := r.URL.Query().Get("session-id")
+	connectionInfo := session.WorkbenchSessionStore[sessionId]
+	instanceName := connectionInfo.InstanceName
+	uid := connectionInfo.StorageEngineUid
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	//post
+	url := "http://query-engine-instance-svc." + instanceName + ".svc.cluster.local:40100/query/run"
+
+	var jsonData map[string]interface{}
+	if err := json.Unmarshal(body, &jsonData); err != nil {
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		return
+	}
+
+	jsonData["uid"] = uid
+	modifiedBody, err := json.Marshal(jsonData)
+	if err != nil {
+		http.Error(w, "Failed to serialize JSON", http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(modifiedBody))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Error reading response: %v\n", err)
+		return
+	}
+
+	w.Write([]byte(string(body) + "\n"))
+}
+
+func TerminateQuery(w http.ResponseWriter, r *http.Request) {
+	sessionId := r.URL.Query().Get("session-id")
+	connectionInfo := session.WorkbenchSessionStore[sessionId]
+	instanceName := connectionInfo.InstanceName
+	uid := connectionInfo.StorageEngineUid
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	//post
+	url := "http://query-engine-instance-svc." + instanceName + ".svc.cluster.local:40100/query/terminate"
+
+	var jsonData map[string]interface{}
+	if err := json.Unmarshal(body, &jsonData); err != nil {
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		return
+	}
+
+	jsonData["uid"] = uid
+	modifiedBody, err := json.Marshal(jsonData)
+	if err != nil {
+		http.Error(w, "Failed to serialize JSON", http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(modifiedBody))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Error reading response: %v\n", err)
+		return
+	}
+
+	w.Write([]byte(string(body) + "\n"))
+}
+
 func DeleteQueryLog(w http.ResponseWriter, r *http.Request) {
 
 }
 
 func GetQueryLog(w http.ResponseWriter, r *http.Request) {
 
+}
+
+func RunQuerySsd(w http.ResponseWriter, r *http.Request) {
+	sessionId := r.URL.Query().Get("session-id")
+	connectionInfo := session.WorkbenchSessionStore[sessionId]
+	instanceName := connectionInfo.InstanceName
+	uid := connectionInfo.StorageEngineUid
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	//post
+	url := "http://query-engine-instance-svc." + instanceName + ".svc.cluster.local:40100/query/run"
+
+	var jsonData map[string]interface{}
+	if err := json.Unmarshal(body, &jsonData); err != nil {
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		return
+	}
+
+	jsonData["uid"] = uid
+	modifiedBody, err := json.Marshal(jsonData)
+	if err != nil {
+		http.Error(w, "Failed to serialize JSON", http.StatusInternalServerError)
+		return
+	}
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(modifiedBody))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Error reading response: %v\n", err)
+		return
+	}
+
+	w.Write([]byte(string(body) + "\n"))
 }
 
 func parseFloat(value interface{}) float64 {
@@ -521,6 +681,38 @@ func parseFloat(value interface{}) float64 {
 	case json.Number:
 		f, _ := v.Float64()
 		return math.Round(f*100) / 100
+	default:
+		fmt.Printf("Unknown type: %T with value: %v\n", v, v)
+	}
+	return 0
+}
+
+func parseInt(value interface{}) int {
+	switch v := value.(type) {
+	case float64:
+		return int(math.Round(v))
+	case int:
+		return v
+	case int64:
+		return int(v)
+	case string:
+		i, err := strconv.ParseInt(v, 10, 64)
+		if err == nil {
+			return int(i)
+		}
+		f, err2 := strconv.ParseFloat(v, 64)
+		if err2 == nil {
+			return int(math.Round(f))
+		}
+	case json.Number:
+		i64, err := v.Int64()
+		if err == nil {
+			return int(i64)
+		}
+		f64, err2 := v.Float64()
+		if err2 == nil {
+			return int(math.Round(f64))
+		}
 	default:
 		fmt.Printf("Unknown type: %T with value: %v\n", v, v)
 	}

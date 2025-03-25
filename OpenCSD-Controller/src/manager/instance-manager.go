@@ -144,6 +144,8 @@ type NodeInstanceInfo struct {
 
 type Instance struct {
 	InstanceName        string `json:"instanceName"`
+	StorageEngineUid    string `json:"storageEngineUid"`
+	QueryEngineUid      string `json:"queryEngineUid"`
 	AccessPort          string `json:"accessPort"`
 	InstanceType        string `json:"instanceType"`
 	OperationNode       string `json:"operationNode"`
@@ -321,6 +323,7 @@ func (instanceManager *InstanceManager) initInstanceInfo() {
 
 		instanceManager.realAddInstance(&pod)
 	}
+
 }
 
 func (instanceManager *InstanceManager) getNodePort(namespace string) string {
@@ -412,6 +415,7 @@ func (instanceManager *InstanceManager) realAddInstance(pod *v1.Pod) {
 	if instance, exists := instanceManager.InstanceInfo[instanceName]; exists {
 		if strings.HasPrefix(pod.Name, "query-engine-instance") {
 			instance.AccessPort = instanceManager.getNodePort(instanceName)
+			instance.QueryEngineUid = string(pod.UID)
 			instance.QueryEngineStatus = parsingStatus(string(pod.Status.Phase))
 		} else { // "storage-engine-instance" or "mysql" or "graphdb"
 			instanceType, volumeName := instanceManager.getStorageEngineInfo(instanceName, pod)
@@ -419,6 +423,7 @@ func (instanceManager *InstanceManager) realAddInstance(pod *v1.Pod) {
 			instance.InstanceType = instanceType
 			instance.StorageNode = instanceManager.VolumeInfo[volumeName].NodeName
 			instance.VolumeName = volumeName
+			instance.StorageEngineUid = string(pod.UID)
 			instance.StorageEngineStatus = parsingStatus(string(pod.Status.Phase))
 		}
 		instanceManager.updateInstanceStatus(nodeName, instanceName)
@@ -426,6 +431,7 @@ func (instanceManager *InstanceManager) realAddInstance(pod *v1.Pod) {
 		if strings.HasPrefix(pod.Name, "query-engine-instance") {
 			newInstance := &Instance{
 				InstanceName:        instanceName,
+				QueryEngineUid:      string(pod.UID),
 				AccessPort:          instanceManager.getNodePort(instanceName),
 				OperationNode:       pod.Spec.NodeName,
 				QueryEngineStatus:   parsingStatus(string(pod.Status.Phase)),
@@ -433,12 +439,19 @@ func (instanceManager *InstanceManager) realAddInstance(pod *v1.Pod) {
 				InstanceStatus:      UNAVAILABLE,
 			}
 			instanceManager.InstanceInfo[instanceName] = newInstance
-			instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName] = newInstance
+			_, ok := instanceManager.OperationNodeInfo[nodeName]
+			if !ok {
+				fmt.Printf("[error] node name '%d' not match operation node list")
+				return
+			} else {
+				instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName] = newInstance
+			}
 		} else { // "storage-engine-instance" or "mysql" or "graphdb"
 			instanceType, volumeName := instanceManager.getStorageEngineInfo(instanceName, pod)
 
 			newInstance := &Instance{
 				InstanceName:        instanceName,
+				StorageEngineUid:    string(pod.UID),
 				InstanceType:        instanceType,
 				OperationNode:       pod.Spec.NodeName,
 				StorageNode:         instanceManager.VolumeInfo[volumeName].NodeName,
@@ -448,7 +461,13 @@ func (instanceManager *InstanceManager) realAddInstance(pod *v1.Pod) {
 				InstanceStatus:      UNAVAILABLE,
 			}
 			instanceManager.InstanceInfo[instanceName] = newInstance
-			instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName] = newInstance
+			_, ok := instanceManager.OperationNodeInfo[nodeName]
+			if !ok {
+				fmt.Printf("[error] node name '%d' not match operation node list")
+				return
+			} else {
+				instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName] = newInstance
+			}
 		}
 	}
 }
@@ -488,29 +507,45 @@ func (instanceManager *InstanceManager) deleteInstance(obj interface{}) {
 	defer instanceManager.mu.Unlock()
 
 	pod, _ := obj.(*v1.Pod)
-	fmt.Println("deleteInstance ", pod.Name)
 
 	instanceName := pod.Namespace
 	nodeName := pod.Spec.NodeName
 
 	if strings.HasPrefix(pod.Name, "query-engine-instance") {
-		if instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].StorageEngineStatus == NONE {
-			delete(instanceManager.OperationNodeInfo[nodeName].InstanceInfo, instanceName)
-			delete(instanceManager.InstanceInfo, instanceName)
-		} else {
-			instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].QueryEngineStatus = NONE
-			instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].AccessPort = ""
-			instanceManager.updateInstanceStatus(nodeName, instanceName)
+		if _, exist := instanceManager.OperationNodeInfo[nodeName]; exist {
+			if _, exist = instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName]; exist {
+				uid := string(pod.UID)
+				fmt.Println(uid, " ", instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].QueryEngineUid)
+				if uid == instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].QueryEngineUid {
+					if instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].StorageEngineStatus == NONE {
+						fmt.Println("deleteInstance ", pod.Name)
+						delete(instanceManager.OperationNodeInfo[nodeName].InstanceInfo, instanceName)
+						delete(instanceManager.InstanceInfo, instanceName)
+					} else {
+						instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].QueryEngineStatus = NONE
+						instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].AccessPort = ""
+						instanceManager.updateInstanceStatus(nodeName, instanceName)
+					}
+				}
+			}
 		}
 	} else {
-		if instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].QueryEngineStatus == NONE {
-			delete(instanceManager.OperationNodeInfo[nodeName].InstanceInfo, instanceName)
-			delete(instanceManager.InstanceInfo, instanceName)
-		} else {
-			instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].StorageEngineStatus = NONE
-			instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].StorageNode = ""
-			instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].VolumeName = ""
-			instanceManager.updateInstanceStatus(nodeName, instanceName)
+		if _, exist := instanceManager.OperationNodeInfo[nodeName]; exist {
+			if _, exist = instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName]; exist {
+				uid := string(pod.UID)
+				if uid == instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].StorageEngineUid {
+					if instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].QueryEngineStatus == NONE {
+						fmt.Println("deleteInstance ", pod.Name)
+						delete(instanceManager.OperationNodeInfo[nodeName].InstanceInfo, instanceName)
+						delete(instanceManager.InstanceInfo, instanceName)
+					} else {
+						instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].StorageEngineStatus = NONE
+						instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].StorageNode = ""
+						instanceManager.OperationNodeInfo[nodeName].InstanceInfo[instanceName].VolumeName = ""
+						instanceManager.updateInstanceStatus(nodeName, instanceName)
+					}
+				}
+			}
 		}
 	}
 }

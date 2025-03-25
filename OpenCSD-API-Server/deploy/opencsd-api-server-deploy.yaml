@@ -46,8 +46,15 @@ spec:
                 limits:
                   memory: "1Gi" 
                   cpu: "1"
+          volumeMounts:
+            - name: tz-config
+              mountPath: /usr/share/zoneinfo/Asia/Seoul
       nodeSelector:
         key: master
+      volumes:
+        - name: tz-config
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Seoul
 ---
 apiVersion: v1
 kind: ServiceAccount

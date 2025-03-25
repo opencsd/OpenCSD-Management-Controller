@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	session "opencsd-api-server/src/session"
 	types "opencsd-api-server/src/type"
 	"os/exec"
 )
@@ -974,6 +975,48 @@ func StorageMetricPowerHandler(w http.ResponseWriter, r *http.Request) {
 
 	jsonResponse, _ = json.Marshal(response)
 	w.Write([]byte(string(jsonResponse) + "\n"))
+}
+
+func UpdateSessionInfo(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("[OpenCSD API Server] UpdateSessionInfoHandler")
+
+	type updatedInfo struct {
+		Status           string `json:"status"`
+		InstanceName     string `json:"instanceName"`
+		InstanceType     string `json:"instanceType"`
+		OperationNode    string `json:"operationNode"`
+		StorageNode      string `json:"storageNode"`
+		StorageEngineUid string `json:"storageEngineUid"`
+	}
+
+	var updateInfo updatedInfo
+
+	request, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	err = json.Unmarshal(request, &updateInfo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	for key, value := range session.WorkbenchSessionStore {
+		if value.InstanceName == updateInfo.InstanceName {
+			value.InstanceType = updateInfo.InstanceType
+			value.OperationNode = updateInfo.OperationNode
+			value.StorageNode = updateInfo.StorageNode
+			value.StorageEngineUid = updateInfo.StorageEngineUid
+
+			session.WorkbenchSessionStore[key] = value
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("[OpenCSD API Server] Update Session Successfully\n"))
 }
 
 func CmdExec(cmdStr string) error {

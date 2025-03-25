@@ -59,14 +59,16 @@ func (instanceMetricCollector *MetricCollector) updateCpu() {
 		diffJiffies.System = curJiffies.System - instanceMetricCollector.NodeMetric.Cpu.StJiffies.System
 		diffJiffies.Idle = curJiffies.Idle - instanceMetricCollector.NodeMetric.Cpu.StJiffies.Idle
 
+		instanceMetricCollector.NodeMetric.Cpu.StJiffies = curJiffies
+
 		totalJiffies := diffJiffies.User + diffJiffies.Nice + diffJiffies.System + diffJiffies.Idle
+		instanceMetricCollector.NodeMetric.Cpu.Tick = diffJiffies.User + diffJiffies.System
 
 		utilization := 100.0 * (1.0 - float64(diffJiffies.Idle)/float64(totalJiffies))
 		instanceMetricCollector.NodeMetric.Cpu.Utilization, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", utilization), 64)
+
 		used := float64(instanceMetricCollector.NodeMetric.Cpu.Total) * (1.0 - float64(diffJiffies.Idle)/float64(totalJiffies))
 		instanceMetricCollector.NodeMetric.Cpu.Used, _ = strconv.ParseFloat(fmt.Sprintf("%.2f", used), 64)
-
-		instanceMetricCollector.NodeMetric.Cpu.StJiffies = curJiffies
 	}
 	file.Close()
 }
@@ -200,7 +202,7 @@ func (instanceMetricCollector *MetricCollector) updatePower() {
 	energyDiffJ1 := float64(currentEnergy1-instanceMetricCollector.NodeMetric.Power.Energy1) / 1e6
 	energyDiffJ2 := float64(currentEnergy2-instanceMetricCollector.NodeMetric.Power.Energy2) / 1e6
 
-	instanceMetricCollector.NodeMetric.Power.Used = int64((energyDiffJ1 + energyDiffJ2) / 1.0)
+	instanceMetricCollector.NodeMetric.Power.Used = int64((energyDiffJ1 + energyDiffJ2) / 5.0)
 	instanceMetricCollector.NodeMetric.Power.Energy1 = currentEnergy1
 	instanceMetricCollector.NodeMetric.Power.Energy2 = currentEnergy2
 }
@@ -223,6 +225,7 @@ func (instanceMetricCollector *MetricCollector) saveNodeMetric() {
 		"cpu_total":       instanceMetricCollector.NodeMetric.Cpu.Total,
 		"cpu_usage":       instanceMetricCollector.NodeMetric.Cpu.Used,
 		"cpu_utilization": instanceMetricCollector.NodeMetric.Cpu.Utilization,
+		"cpu_tick":        instanceMetricCollector.NodeMetric.Cpu.Tick,
 
 		"memory_total":       instanceMetricCollector.NodeMetric.Memory.Total,
 		"memory_usage":       instanceMetricCollector.NodeMetric.Memory.Used,

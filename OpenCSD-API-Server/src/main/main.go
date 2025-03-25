@@ -44,6 +44,7 @@ func main() {
 	mux.HandleFunc("/instance/delete/mysql", handler.DeleteMySQL)       //?instance=
 	mux.HandleFunc("/instance/delete/graphdb", handler.DeleteGraphDB)   //?instance=
 	mux.HandleFunc("/instance/delete/instance", handler.DeleteInstance) //?instance=
+	mux.HandleFunc("instance/update/session", handler.UpdateSessionInfo)
 
 	//volume
 	mux.HandleFunc("/volume/allocate", handler.VolumeAllocateHandler)     //post, volumeCreationInfo
@@ -74,13 +75,15 @@ func main() {
 	mux.HandleFunc("/workbench/monitoring/connection-info", handler.MonitoringConnectionInfo) //get, ?session-id=
 	mux.HandleFunc("/workbench/monitoring/metric/node", handler.NodeMetric)                   //get, ?session-id=&count=
 	mux.HandleFunc("/workbench/monitoring/metric/instance", handler.InstanceMetric)           //get, ?session-id=&count=
-	mux.HandleFunc("/workbench/monitoring/metric/csd", handler.CsdMetric)                     //get, ?session-id=&csd-id=&count=
-	// mux.HandleFunc("/workbench/query/run", handler.ExecuteQuery)                              //get, ?session-id=, json
+	mux.HandleFunc("/workbench/monitoring/metric/csd", handler.CsdMetric)
+	mux.HandleFunc("/workbench/query/metric", handler.NodeMetricMin) //get, ?session-id=&count=&start-time=&end-time=
+	mux.HandleFunc("/workbench/query/run", handler.RunQuery)
+	mux.HandleFunc("/workbench/query/terminate", handler.TerminateQuery)
+	mux.HandleFunc("/workbench/query/log/get", handler.GetQueryLog)       //get, ?session-id=?log-id=
+	mux.HandleFunc("/workbench/query/log/delete", handler.DeleteQueryLog) //get, ?session-id=
+	mux.HandleFunc("/workbench/query-ssd/run", handler.RunQuerySsd)
 	// mux.HandleFunc("/workbench/query/schema-info", handler.GetSchemaInfo)                     //get, ?session-id=
 	// mux.HandleFunc("/workbench/query/environment", handler.QueryEnvInfo)                      //get, post, ?session-id=
-	// mux.HandleFunc("/workbench/query/metric", handler.NodeMetricMin)                          //get, ?session-id=
-	// mux.HandleFunc("/workbench/query/log/delete", handler.DeleteQueryLog)                     //get, ?session-id=
-	// mux.HandleFunc("/workbench/query/log/get", handler.GetQueryLog)                           //get, ?session-id=?log-id=
 
 	//gluesys
 	mux.HandleFunc("/dashboard/cluster/storage-node-list", handler.ClusterStorageNodeListHandler) //1. ClusterNodeList

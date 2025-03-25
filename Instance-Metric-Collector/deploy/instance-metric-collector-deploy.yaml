@@ -6,8 +6,8 @@ metadata:
 data:
   initdb.sh: |
     #!/bin/sh
-    influx -execute "CREATE DATABASE opencsd_instance_metric_db"
-    influx -execute "CREATE RETENTION POLICY 'day_policy' ON 'opencsd_instance_metric_db' DURATION 1d REPLICATION 1 DEFAULT"
+    influx -execute 'CREATE DATABASE opencsd_instance_metric_db' \
+    && influx -execute 'CREATE RETENTION POLICY "day_policy" ON "opencsd_instance_metric_db" DURATION 7d REPLICATION 1 DEFAULT'
 ---
 apiVersion: v1
 kind: ConfigMap

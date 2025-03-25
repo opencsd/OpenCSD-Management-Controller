@@ -160,6 +160,8 @@ type Cpu struct {
 	Used        float64
 	Utilization float64
 	StJiffies   StJiffies
+	Tick        int
+	ClockTick   int
 }
 
 type StJiffies struct {
@@ -277,20 +279,20 @@ func (nodeMetric *NodeMetric) InitNodeMetric() {
 				nodeMetric.Cpu.Total = coreCount
 			}
 		}
-	}
 
-	{
-		file, err := os.Open("/host/proc/stat")
+		cmd = exec.Command("getconf", "CLK_TCK")
+		output, err = cmd.Output()
 		if err != nil {
-			fmt.Println("cannot open file: ", err)
+			fmt.Println("Error: Command execution failed:", err)
 		} else {
-			var cpuID string
-			_, err = fmt.Fscanf(file, "%5s %d %d %d %d", &cpuID, &nodeMetric.Cpu.StJiffies.User, &nodeMetric.Cpu.StJiffies.Nice, &nodeMetric.Cpu.StJiffies.System, &nodeMetric.Cpu.StJiffies.Idle)
+			clockTickStr := strings.TrimSpace(string(output))
+			clockTick, err := strconv.Atoi(clockTickStr)
 			if err != nil {
-				fmt.Println("Error reading data from file:", err)
+				fmt.Println("Error: Command execution failed:", err)
+			} else {
+				nodeMetric.Cpu.ClockTick = clockTick
 			}
 		}
-		file.Close()
 	}
 
 	{

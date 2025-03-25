@@ -275,6 +275,7 @@ func createQueryEngineDeployment(instanceInfo CreateInstanceInfo) error {
 	namespace := instanceInfo.InstanceName
 	storageEngineDns := "storage-engine-instance-svc." + namespace + ".svc.cluster.local"
 	nodeName := instanceInfo.OperationNode
+	instanceType := instanceInfo.InstanceType
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -330,6 +331,10 @@ func createQueryEngineDeployment(instanceInfo CreateInstanceInfo) error {
 								{
 									Name:  "LOG_LEVEL",
 									Value: "INFO",
+								},
+								{
+									Name:  "INSTANCE_TYPE",
+									Value: instanceType,
 								},
 								{
 									Name:  "STORAGE_ENGINE_DNS",

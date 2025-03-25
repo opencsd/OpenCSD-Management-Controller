@@ -13,22 +13,24 @@ var (
 )
 
 type ConnectionInfo struct {
-	InstanceName  string `json:"instanceName"`
-	UserName      string `json:"userName"`
-	DbName        string `json:"dbName"`
-	DbUser        string `json:"dbUser"`
-	DbPassword    string `json:"dbPassword"`
-	InstanceType  string `json:"instanceType"`
-	OperationNode string `json:"operationNode"`
-	StorageNode   string `json:"storageNode"`
+	InstanceName     string `json:"instanceName"`
+	StorageEngineUid string `json:"storageEngineUid"`
+	UserName         string `json:"userName"`
+	DbName           string `json:"dbName"`
+	DbUser           string `json:"dbUser"`
+	DbPassword       string `json:"dbPassword"`
+	InstanceType     string `json:"instanceType"`
+	OperationNode    string `json:"operationNode"`
+	StorageNode      string `json:"storageNode"`
 }
 
 type ConnectionInfoMin struct {
-	InstanceName string `json:"instanceName"`
-	UserName     string `json:"userName"`
-	DbName       string `json:"dbName"`
-	DbUser       string `json:"dbUser"`
-	DbPassword   string `json:"dbPassword"`
+	InstanceName     string `json:"instanceName"`
+	StorageEngineUid string `json:"storageEngineUid"`
+	UserName         string `json:"userName"`
+	DbName           string `json:"dbName"`
+	DbUser           string `json:"dbUser"`
+	DbPassword       string `json:"dbPassword"`
 }
 
 func ConvertToConnectionInfoMin(ci ConnectionInfo) ConnectionInfoMin {
@@ -41,13 +43,14 @@ func ConvertToConnectionInfoMin(ci ConnectionInfo) ConnectionInfoMin {
 	}
 }
 
-func CreateSessionHandler(connectionInfo ConnectionInfo, instanceType string, operationNode string, storageNode string) string {
+func CreateSessionHandler(connectionInfo ConnectionInfo, instanceType string, operationNode string, storageNode string, uid string) string {
 	sessionId := uuid.New().String()
 
 	mu.Lock()
 	connectionInfo.InstanceType = instanceType
 	connectionInfo.OperationNode = operationNode
 	connectionInfo.StorageNode = storageNode
+	connectionInfo.StorageEngineUid = uid
 	WorkbenchSessionStore[sessionId] = connectionInfo
 	mu.Unlock()
 

@@ -169,6 +169,7 @@ type NodeStorageInfo struct {
 type NodeMetric struct {
 	Time              string  `json:"timestamp"`
 	NodeName          string  `json:"name"`
+	CpuTick           int     `json:"cpuTick"`
 	CpuTotal          float64 `json:"cpuTotal"`
 	CpuUsed           float64 `json:"cpuUsed"`
 	CpuUtilization    float64 `json:"cpuUtilization"`
@@ -302,6 +303,8 @@ func NewStorageInfoMessage() StorageInfoMessage {
 
 type Instance struct {
 	InstanceName        string `json:"instanceName"`
+	StorageEngineUid    string `json:"storageEngineUid"`
+	QueryEngineUid      string `json:"queryEngineUid"`
 	AccessPort          string `json:"accessPort"`
 	InstanceType        string `json:"instanceType"`
 	OperationNode       string `json:"operationNode"`
