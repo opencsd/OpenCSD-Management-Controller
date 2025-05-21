@@ -498,7 +498,7 @@ func NodeMetricMin(w http.ResponseWriter, r *http.Request) {
 			for i := 0; i < metricCount; i++ {
 				weightArray[i] = interval
 			}
-			for i := 0; i < remainder; i++ {
+			for i := metricCount - 1; metricCount-remainder <= i; i-- {
 				weightArray[i]++
 			}
 
